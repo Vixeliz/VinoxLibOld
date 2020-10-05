@@ -21,6 +21,7 @@ int testval;
         "out vec2 vTexCoord;\n"
         "out float vTexIndex;\n"
         "uniform mat4 projection;\n"
+        //"uniform mat4 view;\n"
         "void main()\n"                                           
         "{\n"               
         "   vColor = aColor;\n"
@@ -52,6 +53,8 @@ int testval;
     if (program->fSrc == NULL)   
         program->fSrc = fragmentSource;
 
+    /* Pretty simple compile our shaders then link them together into a shader
+     * program */
     program->vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(program->vertexShader, 1, &vertexSource, NULL);
     glCompileShader(program->vertexShader);
@@ -66,6 +69,7 @@ int testval;
 
     glLinkProgram(program->shaderID);
 
+    /* Make sure no errors are present */
     glGetShaderiv(program->vertexShader, GL_COMPILE_STATUS, &testval);
     if(testval == GL_FALSE) {
 	    abort = -1;

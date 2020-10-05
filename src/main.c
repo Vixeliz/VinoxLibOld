@@ -15,6 +15,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+/* We should switch all of these to the cglm vec type */
 #define WHITE (Vec4) { 1.0f, 1.0f, 1.0f, 1.0f }
 
 typedef struct {
@@ -39,7 +40,8 @@ float deltaTime;
 float lastFrame;
 
 void processInput(GLFWwindow *window) {
-	float currentFrame = glfwGetTime();
+	/* delta time so speed is right no matter the fps */
+    float currentFrame = glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
 	float playerSpeed = 100.0f * deltaTime;
@@ -58,8 +60,10 @@ void processInput(GLFWwindow *window) {
 
 static GLuint createTexture(const char* path) {
     int w, h, c;
+    /* Load the texture we should error check here */
     unsigned char *data = stbi_load(path, &w, &h, &c, 0);
     
+    /* Generate the GLtexture and free the texture after we are done */
     GLuint textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -76,6 +80,7 @@ static GLuint createTexture(const char* path) {
 
 static vertex* CreateQuad(vertex* target, float x, float y, float width, float height, float textureID, Vec4 color) {
     
+    /* We set all of the vertex positions in the buffer based on the parameters */
     target->position = (Vec3) { x, y, 0.0f };
     target->color = color;
     target->texCoords = (Vec2) { 0.0f, 0.0f };
@@ -127,6 +132,7 @@ int main(void) {
     (PFNGLISVERTEXARRAYOESPROC)
     eglGetProcAddress("glIsVertexArrayOES");
 
+    /* Init window and make context current */
     GLFWwindow* window;
     glfwInit();
 
@@ -148,6 +154,7 @@ int main(void) {
     }
     glUseProgram(program.shaderID);
     
+    /* Set our texture IDS so the fragment shader knows which texture to use */
     unsigned int containerTex = createTexture("container.jpg");
     unsigned int containerTex2 = createTexture("container.jpg");
     unsigned int loc = glGetUniformLocation(program.shaderID, "uTextures");
@@ -156,35 +163,18 @@ int main(void) {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, containerTex2);
 
+    /* Create our vertex array object and buffer object to set up for a dynamic
+     * array to send to the gpu */
     GLuint vao;
     glGenVertexArraysOES(1, &vao);
 
     GLuint vbo;
     glGenBuffers(1, &vbo);
-
-    /*GLfloat vertices[] = {
-        // positions     
-        0.5f,  0.5f, 0.0f, 0.18f, 0.6f, 0.96f, 1.0f, 0.0f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.0f, 0.18f, 0.8f, 0.7f, 1.0f, 1.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f, 0.0f, 0.8f, 0.1f, 0.96f, 1.0f, 1.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, 0.0f, 0.18f, 0.5f, 0.6f, 1.0f, 0.0f, 1.0f, 0.0f,
-
-        -0.5f, 1.0f, 0.0f, 1.0f, 0.94f, 0.24f, 1.0f, 0.0f, 0.0f, 1.0f, 
-        -0.5f, 0.5f, 0.0f, 1.0f, 0.7f, 0.1f, 1.0f, 1.0f, 0.0f, 1.0f,
-        -1.0f, 0.5f, 0.0f, 0.7f, 0.84f, 0.04f, 1.0f, 1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, 0.0f, 1.0f, 0.94f, 0.24f, 1.0f, 0.0f, 1.0f, 1.0f
-        
-    };*/
-    /*GLuint indices[] = {
-        0, 1, 3,
-        1, 2, 3,
-
-        4, 5, 7,
-        5, 6, 7
-    };*/
+    
     uint32_t indices[MaxIndexCount];
     uint32_t offset = 0;
 
+    /* This preallocates our max indices for every draw call */
     for (size_t i = 0; i < MaxIndexCount; i += 6) {
         indices[i + 0] = 0 + offset;
         indices[i + 1] = 1 + offset;
@@ -207,6 +197,8 @@ int main(void) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+    /* Set up our vertex pointers so we can send our positions and such
+     * dynamically */
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, position));
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, color));
@@ -216,25 +208,14 @@ int main(void) {
     glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, texIndex));
     glEnableVertexAttribArray(3);
 
+    /* Drawing Loop */
     while (!glfwWindowShouldClose(window)) {
         int width, height;
 
         glfwGetFramebufferSize(window, &width, &height);
         processInput(window);
-
-        /*GLfloat vertices[] = {
-        // positions     
-        0.5f,  0.5f, 0.0f, 0.18f, 0.6f, 0.96f, 1.0f, 0.0f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.0f, 0.18f, 0.8f, 0.7f, 1.0f, 1.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f, 0.0f, 0.8f, 0.1f, 0.96f, 1.0f, 1.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, 0.0f, 0.18f, 0.5f, 0.6f, 1.0f, 0.0f, 1.0f, 0.0f,
-
-        -0.5f, 1.0f, 0.0f, 1.0f, 0.94f, 0.24f, 1.0f, 0.0f, 0.0f, 1.0f, 
-        -0.5f, 0.5f, 0.0f, 1.0f, 0.7f, 0.1f, 1.0f, 1.0f, 0.0f, 1.0f,
-        -1.0f, 0.5f, 0.0f, 0.7f, 0.84f, 0.04f, 1.0f, 1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, 0.0f, 1.0f, 0.94f, 0.24f, 1.0f, 0.0f, 1.0f, 1.0f
-        };*/
-
+        
+        /* Indexcount so opengl knows how many indices to draw */
         uint32_t indexCount = 0;
         vertex vertices[1000];
         vertex* buffer = vertices;
@@ -248,15 +229,20 @@ int main(void) {
         buffer = CreateQuad(buffer, playerPos.x, playerPos.y, 50.0f, 50.0f, 0, (Vec4) { 0.1f, 0.8f, 0.7f, 1.0f });  
         indexCount += 6;
         
+        /* Send our buffer to the gpu */
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), &vertices[0]);
 
         glViewport(0, 0, width, height);
         
+        /* Camera transformations */
         mat4 projection = GLM_MAT4_IDENTITY_INIT;
         glm_ortho(0.0f, width, height, 0.0f, -1.0f, 1.0f, projection);
+        mat4 view = GLM_MAT4_IDENTITY_INIT;
+        glm_translate(projection, (vec3) { -playerPos.x, -playerPos.y, 0.0f });
+        glm_translate(projection, (vec3) { width/2, height/2, 0.0f });
         glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, projection[0]);
-
+        /* Actually drawing */
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -265,7 +251,6 @@ int main(void) {
 
         glfwSwapBuffers(window);
         glfwPollEvents();
- 
     }
  
     glfwDestroyWindow(window);
