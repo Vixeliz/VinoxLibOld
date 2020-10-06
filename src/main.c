@@ -8,7 +8,7 @@
 int main(void) {
     GLFWwindow* window;
     glfwInit();
-
+    
     window = glfwCreateWindow(640, 480, "Vinox", NULL, NULL);
     
     glfwMakeContextCurrent(window);
@@ -20,13 +20,17 @@ int main(void) {
     }
 
     Camera camera;
+    camera.position = (Vec2) { 500.0f, 500.0f };
+    camera.scale = 2.0f;
+    camera.rotation = 0.0f;
+
     while (!glfwWindowShouldClose(window)) {
         int width, height;
 
         glfwGetFramebufferSize(window, &width, &height);
-        glViewport(0, 0, width, height);
         
         vinoxBeginDrawing(camera, width, height);
+        glViewport(0, 0, width, height);
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);

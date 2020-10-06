@@ -14,9 +14,9 @@ typedef struct {
 }Vec4;
 
 typedef struct {
-    Vec3 position;
-    Vec4 color;
-    Vec2 texCoords;
+    vec3 position;
+    vec4 color;
+    vec2 texCoords;
     float texIndex;
 } Vertex;
 
@@ -34,6 +34,6 @@ int vinoxEnd();
 
 unsigned int vinoxCreateTexture(const char* path);
 Vertex* vinoxCreateQuad(Vertex* target, float x, float y, float width, float height, 
-        float textureID, Vec4 color);
+        float textureID, vec4 color);
 
 #endif

@@ -26,7 +26,7 @@ int testval;
         "   vColor = aColor;\n"
         "   vTexCoord = aTexCoord;\n"
         "   vTexIndex = aTexIndex;\n"
-        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"                         
+        "   gl_Position = projection * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"                         
         "}\n\0";
 
     const char* fragmentSource = 
