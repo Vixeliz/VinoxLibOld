@@ -14,6 +14,11 @@ int main(void) {
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
+    if (vinoxInit() == -1) {
+        printf("Init of vinox failed. aborting\n");
+        return -1;
+    }
+
     Camera camera;
     while (!glfwWindowShouldClose(window)) {
         int width, height;

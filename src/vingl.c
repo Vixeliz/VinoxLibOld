@@ -129,7 +129,7 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
     /* to test it for now draw one texture */
     for (int y = -6; y < 5; y++) {
         for (int x = -6; x < 5; x++) {
-            buffer = vinoxCreateQuad(buffer, x, y, 1.0f, 1.0f, (x + y) % 2, WHITE);
+            buffer = vinoxCreateQuad(buffer, x * 100, y * 100, 100.0f, 100.0f, (x + y) % 2, WHITE);
             indexCount += 6;
         }
     }
@@ -146,7 +146,7 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
         
     /* Camera origin */
     mat4 position = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(position, (vec3) { width/2, height/2, 0.0f });
+    glm_translate(position, (vec3) { 0.0f, 0.0f, 0.0f });
         
     /* Camera rotation */
     glm_rotate(position, glm_rad(0.0f), (vec3) { 0.0f, 0.0f, 1.0f });
