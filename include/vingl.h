@@ -33,7 +33,7 @@ void vinoxEndDrawing();
 int vinoxEnd();
 
 unsigned int vinoxCreateTexture(const char* path);
-Vertex* vinoxCreateQuad(Vertex* target, float x, float y, float width, float height, 
+int vinoxCreateQuad(float x, float y, float width, float height, 
         float textureID, vec4 color);
 
 #endif
