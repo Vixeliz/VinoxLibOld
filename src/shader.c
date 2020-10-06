@@ -7,10 +7,8 @@
 #include <stdio.h>
 #include "shader.h"
 
-int vinoxCompileShader(ShaderProgram *program) {
-int abort;
-int testval;
-/* If no shaders are present set a default one */
+static int compileVertexShader(ShaderProgram *program) {
+
     const char* vertexSource =                                                    
         "#version 320 es\n"
         "precision mediump float;\n"
@@ -30,6 +28,18 @@ int testval;
         "   gl_Position = projection * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"                         
         "}\n\0";
 
+    if (program->vSrc == NULL)   
+        program->vSrc = vertexSource;
+
+    program->vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(program->vertexShader, 1, &vertexSource, NULL);
+    glCompileShader(program->vertexShader);
+    
+    return 0;
+}
+
+static int compileFragmentShader(ShaderProgram *program) {
+
     const char* fragmentSource = 
         "#version 320 es\n"
         "precision mediump float;\n"
@@ -48,26 +58,26 @@ int testval;
         "   }\n"
         "}\n\0";
 
-    if (program->vSrc == NULL)   
-        program->vSrc = vertexSource;
-
     if (program->fSrc == NULL)   
         program->fSrc = fragmentSource;
-
-    /* Pretty simple compile our shaders then link them together into a shader
-     * program */
-    program->vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(program->vertexShader, 1, &vertexSource, NULL);
-    glCompileShader(program->vertexShader);
 
     program->fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(program->fragmentShader, 1, &fragmentSource, NULL);
     glCompileShader(program->fragmentShader);
-    
+
+    return 0;
+}
+
+int vinoxCompileShader(ShaderProgram *program) {
+int abort;
+int testval;
+
+    compileVertexShader(program);
+    compileFragmentShader(program);
+
     program->shaderID = glCreateProgram();
     glAttachShader(program->shaderID, program->vertexShader);
     glAttachShader(program->shaderID, program->fragmentShader);
-
     glLinkProgram(program->shaderID);
 
     /* Make sure no errors are present */

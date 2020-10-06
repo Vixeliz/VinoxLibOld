@@ -17,7 +17,8 @@ static ShaderProgram program;
 static GLuint vao;
 static GLuint vbo;
 static uint32_t indexCount = 0;
-
+static Vertex vertices[1000];
+static Vertex* buffer = vertices;
 /*const char *getGLError(GLenum err) {
     switch (err) {
         case GL_NO_ERROR:   return "No error";
@@ -30,6 +31,34 @@ static uint32_t indexCount = 0;
     }
 }*/
 
+static int calculateCameraMatrix(mat4 viewprojection, Camera *camera, int width, int height) {
+
+    /* Camera transformations */
+    mat4 projection = GLM_MAT4_IDENTITY_INIT;
+    mat4 view = GLM_MAT4_IDENTITY_INIT;
+    glm_ortho(0.0f, width, height, 0.0f, -1.0f, 1.0f, projection);
+        
+    /* Camera origin */
+    mat4 position = GLM_MAT4_IDENTITY_INIT;
+    glm_translate(position, (vec3) { width/2, height/2, 0.0f });
+        
+    /* Camera rotation */
+    glm_rotate(position, glm_rad(camera->rotation), (vec3) { 0.0f, 0.0f, 1.0f });
+        
+    /* Camera zoom */
+    glm_scale(position, (vec3) { camera->scale, camera->scale, 1.0f });
+        
+    /* Camera position */
+    vec3 camPosition = { camera->position.x, camera->position.y, 0.0f };
+    glm_translate(position, camPosition);
+        
+        
+    //glm_mat4_mul(position, rotation, view);
+    glm_mat4_copy(position, view);
+    glm_mat4_mul(projection, view, viewprojection);
+    
+    return 0;
+}
 
 static int createBuffer() {
 
@@ -134,9 +163,7 @@ int vinoxInit() {
 }
 
 void vinoxBeginDrawing(Camera camera, int width, int height) {
-    Vertex vertices[1000];
-    Vertex* buffer = vertices;
- 
+    buffer = vertices;
     glViewport(0, 0, width, height);
 
     indexCount = 0;
@@ -155,31 +182,7 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), &vertices[0]);
 
     mat4 viewprojection = GLM_MAT4_IDENTITY_INIT;
-       
-    /* Camera transformations */
-    mat4 projection = GLM_MAT4_IDENTITY_INIT;
-    mat4 view = GLM_MAT4_IDENTITY_INIT;
-    glm_ortho(0.0f, width, height, 0.0f, -1.0f, 1.0f, projection);
-        
-    /* Camera origin */
-    mat4 position = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(position, (vec3) { width/2, height/2, 0.0f });
-        
-    /* Camera rotation */
-    glm_rotate(position, glm_rad(camera.rotation), (vec3) { 0.0f, 0.0f, 1.0f });
-        
-    /* Camera zoom */
-    glm_scale(position, (vec3) { camera.scale, camera.scale, 1.0f });
-        
-    /* Camera position */
-    vec3 camPosition = { camera.position.x, camera.position.y, 0.0f };
-    glm_translate(position, camPosition);
-        
-        
-    //glm_mat4_mul(position, rotation, view);
-    glm_mat4_copy(position, view);
-    glm_mat4_mul(projection, view, viewprojection);
-
+    calculateCameraMatrix(viewprojection, &camera, width, height);
     glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, viewprojection[0]);
     
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
