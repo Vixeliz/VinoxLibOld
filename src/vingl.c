@@ -136,7 +136,9 @@ int vinoxInit() {
 void vinoxBeginDrawing(Camera camera, int width, int height) {
     Vertex vertices[1000];
     Vertex* buffer = vertices;
-    
+ 
+    glViewport(0, 0, width, height);
+
     indexCount = 0;
     /* to test it for now draw one texture */
     for (int y = -6; y < 5; y++) {

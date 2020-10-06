@@ -1,8 +1,5 @@
 #define GLFW_NO_INCLUDE
 #include <GLFW/glfw3.h>
-#define GL_GLEXT_PROTOTYPES 1
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
 #include <vinox/vingl.h>
 
 int main(void) {
@@ -30,7 +27,6 @@ int main(void) {
         glfwGetFramebufferSize(window, &width, &height);
         
         vinoxBeginDrawing(camera, width, height);
-        glViewport(0, 0, width, height);
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);
