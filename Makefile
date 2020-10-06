@@ -4,7 +4,7 @@ INCLUDES = -Iinclude -Iexternal
 
 LIBS = -lGLESv2 -lEGL -lcglm
 
-SRCS = src/shader.c src/shapes.c src/vingl.c 
+SRCS = src/shader.c src/vingl.c 
 
 PREFIX = /usr/local
 

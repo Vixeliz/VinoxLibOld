@@ -50,7 +50,7 @@ static int calculateCameraMatrix(mat4 viewprojection, Camera *camera, int width,
     glm_scale(position, (vec3) { camera->scale, camera->scale, 1.0f });
         
     /* Camera position */
-    vec3 camPosition = { camera->position.x, camera->position.y, 0.0f };
+    vec3 camPosition = { -camera->position[1], -camera->position[2], 0.0f };
     glm_translate(position, camPosition);
         
         
