@@ -61,8 +61,8 @@ int main(void) {
         camera.origin.y = height/2 - 50.0f;
 
         vinoxBeginDrawing(camera, width, height);
-           for (int y = -6; y < 5; y++) {
-            for (int x = -6; x < 5; x++) {
+           for (int y = -6; y < 6; y++) {
+            for (int x = -6; x < 6; x++) {
             vinoxCreateQuad(x * 100.0f, y * 100.0f, 100.0f, 100.0f, 1, WHITE);
             }   
         }

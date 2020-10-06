@@ -2,6 +2,7 @@ Features:
 * [ ] Limit fps
 * [ ] Function for updating in a fixed time(like units fixedtimeupdate function)?
 * [ ] Audio
+* [ ] Dynamically split up draw calls if the amount of vertices is too large that way we don't segfault
 * [ ] allow for drawing a part of a texture
 
 Clean Up:
