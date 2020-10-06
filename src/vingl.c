@@ -154,7 +154,6 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
 
     mat4 viewprojection = GLM_MAT4_IDENTITY_INIT;
        
-    width = 1000, height = 1000;
     /* Camera transformations */
     mat4 projection = GLM_MAT4_IDENTITY_INIT;
     mat4 view = GLM_MAT4_IDENTITY_INIT;
