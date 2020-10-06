@@ -4,7 +4,7 @@ INCLUDES = -Iinclude -Iexternal
 
 LIBS = -lGLESv2 -lEGL -lglfw -lcglm
 
-SRCS = src/shader.c src/main.c
+SRCS = src/shader.c src/shapes.c src/vingl.c src/main.c
 
 OBJS = $(SRCS:.c=.o)
 
