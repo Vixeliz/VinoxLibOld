@@ -235,13 +235,35 @@ int main(void) {
 
         glViewport(0, 0, width, height);
         
+
+        mat4 viewprojection = GLM_MAT4_IDENTITY_INIT;
+        
         /* Camera transformations */
         mat4 projection = GLM_MAT4_IDENTITY_INIT;
-        glm_ortho(0.0f, width, height, 0.0f, -1.0f, 1.0f, projection);
         mat4 view = GLM_MAT4_IDENTITY_INIT;
-        glm_translate(projection, (vec3) { -playerPos.x, -playerPos.y, 0.0f });
-        glm_translate(projection, (vec3) { width/2, height/2, 0.0f });
-        glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, projection[0]);
+        glm_ortho(0.0f, width, height, 0.0f, -1.0f, 1.0f, projection);
+        
+        /* Camera origin */
+        mat4 position = GLM_MAT4_IDENTITY_INIT;
+        glm_translate(position, (vec3) { width/2, height/2, 0.0f });
+        
+        /* Camera rotation */
+        glm_rotate(position, glm_rad(0.0f), (vec3) { 0.0f, 0.0f, 1.0f });
+        
+        /* Camera zoom */
+        glm_scale(position, (vec3) { 2.0f, 2.0f, 1.0f });
+        
+        /* Camera position */
+        vec3 camPosition = { -playerPos.x, -playerPos.y, 0.0f };
+        glm_translate(position, camPosition);
+        
+        
+        //glm_mat4_mul(position, rotation, view);
+        glm_mat4_copy(position, view);
+        glm_mat4_mul(projection, view, viewprojection);
+
+        glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, viewprojection[0]);
+        
         /* Actually drawing */
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);

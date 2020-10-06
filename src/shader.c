@@ -21,7 +21,6 @@ int testval;
         "out vec2 vTexCoord;\n"
         "out float vTexIndex;\n"
         "uniform mat4 projection;\n"
-        //"uniform mat4 view;\n"
         "void main()\n"                                           
         "{\n"               
         "   vColor = aColor;\n"
