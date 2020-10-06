@@ -12,7 +12,8 @@ int abort;
 int testval;
 /* If no shaders are present set a default one */
     const char* vertexSource =                                                    
-        "#version 440 core\n"                                                       
+        "#version 320 es\n"
+        "precision mediump float;\n"
         "layout (location = 0) in vec3 aPos;\n"                                     
         "layout (location = 1) in vec4 aColor;\n" 
         "layout (location = 2) in vec2 aTexCoord;\n" 
@@ -30,7 +31,8 @@ int testval;
         "}\n\0";
 
     const char* fragmentSource = 
-        "#version 440 core\n"
+        "#version 320 es\n"
+        "precision mediump float;\n"
         "in vec4 vColor;\n"
         "in vec2 vTexCoord;\n"
         "in float vTexIndex;\n"
