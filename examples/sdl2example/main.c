@@ -1,5 +1,5 @@
 #include <SDL2/SDL.h>
-#include <vinox/vingl.h>
+#include <vinox/vinox.h>
 
 int main(void) {
 

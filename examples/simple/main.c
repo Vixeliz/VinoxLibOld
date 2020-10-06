@@ -1,6 +1,6 @@
 #define GLFW_NO_INCLUDE
 #include <GLFW/glfw3.h>
-#include <vinox/vingl.h>
+#include <vinox/vinox.h>
 
 int main(void) {
     GLFWwindow* window;
