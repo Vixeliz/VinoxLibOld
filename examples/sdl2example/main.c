@@ -1,7 +1,4 @@
 #include <SDL2/SDL.h>
-#define GL_GLEXT_PROTOTYPES 1
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
 #include <vinox/vingl.h>
 
 int main(void) {
@@ -50,7 +47,6 @@ int main(void) {
         SDL_GetWindowSize(window, &width, &height);
         
         vinoxBeginDrawing(camera, width, height);
-        glViewport(0, 0, width, height);
         vinoxEndDrawing();
 
         SDL_GL_SwapWindow(window);
