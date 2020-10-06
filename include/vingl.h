@@ -4,6 +4,11 @@
 #include <cglm/cglm.h>
 
 typedef struct {
+    float x;
+    float y;
+} Vector2;
+
+typedef struct {
     vec3 position;
     vec4 color;
     vec2 texCoords;
@@ -13,8 +18,8 @@ typedef struct {
 typedef struct {
     float rotation;
     float scale;
-    vec2 position;
-    vec2 origin;
+    Vector2 position;
+    Vector2 origin;
 } Camera;
 
 int vinoxInit();

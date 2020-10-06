@@ -41,7 +41,7 @@ static int calculateCameraMatrix(mat4 viewprojection, Camera *camera, int width,
         
     /* Camera origin */
     mat4 position = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(position, (vec3) { width/2, height/2, 0.0f });
+    glm_translate(position, (vec3) { camera->origin.x, camera->origin.y, 0.0f });
         
     /* Camera rotation */
     glm_rotate(position, glm_rad(camera->rotation), (vec3) { 0.0f, 0.0f, 1.0f });
@@ -50,7 +50,7 @@ static int calculateCameraMatrix(mat4 viewprojection, Camera *camera, int width,
     glm_scale(position, (vec3) { camera->scale, camera->scale, 1.0f });
         
     /* Camera position */
-    vec3 camPosition = { -camera->position[1], -camera->position[2], 0.0f };
+    vec3 camPosition = { -camera->position.x, -camera->position.y, 0.0f };
     glm_translate(position, camPosition);
         
         
