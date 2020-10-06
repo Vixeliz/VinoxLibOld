@@ -5,10 +5,10 @@ Features:
 * [ ] allow for drawing a part of a texture
 
 Clean Up:
-* [O] Modularize
+* [o] Modularize
     1) [X] Seperate all opengl code to other files and functions
     2) [ ] Create structures for certain types such as rectangles and camera
-    3) [X] Use cglm types
+    3) [ ] Use cglm types
     4) [X] Seperate example from lib(the example should compile seperatly and be able to use a .a file for the library)
 * [ ] Documentation
     1) [ ] Have better comments in the code
