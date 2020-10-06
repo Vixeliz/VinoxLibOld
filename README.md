@@ -12,3 +12,12 @@ What are the goals?
 I am primarly making this for gamedev as it is what I enjoy doing; however, I also hope to be able to
 make some tools with it as I would like to make some things like a pixel art editor and a port of sfxr.
 
+
+Current Limitations
+--------------------
+* Different types of geometry aren't batched together for example
+triangles are a seperate batch from quads and spheres are a seperate batch from those,
+etc
+* No audio
+* Texture system is static right now ie can't load your own texture this is being worked on
+* Optimizing changing data to only when it's changed ex: camera
