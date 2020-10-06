@@ -9,7 +9,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#define WHITE (Vec4) { 1.0f, 1.0f, 1.0f, 1.0f }
+#define WHITE (vec4) { 1.0f, 1.0f, 1.0f, 1.0f }
 
 
 /* Global variables in file */
@@ -17,6 +17,19 @@ static ShaderProgram program;
 static GLuint vao;
 static GLuint vbo;
 static uint32_t indexCount = 0;
+
+/*const char *getGLError(GLenum err) {
+    switch (err) {
+        case GL_NO_ERROR:   return "No error";
+        case GL_INVALID_ENUM:   return "Invalid name";
+        case GL_INVALID_VALUE:  return "Invalid value";
+        case GL_STACK_OVERFLOW_KHR: return "Stack overflow";
+        case GL_STACK_UNDERFLOW_KHR: return "Stack underflow";
+        case GL_OUT_OF_MEMORY:  return "Out of mem";
+        default:    return "Unkown error";
+    }
+}*/
+
 
 static int createBuffer() {
 
@@ -75,9 +88,9 @@ static int createBuffer() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * maxVertexCount, 
             NULL, GL_DYNAMIC_DRAW);
 
-    glBindBuffer(GL_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
     return 0;
 }
 
@@ -117,28 +130,31 @@ int vinoxInit() {
             (void*)offsetof(Vertex, texIndex));
     glEnableVertexAttribArray(3);
 
-
     return 0;
 }
 
 void vinoxBeginDrawing(Camera camera, int width, int height) {
     Vertex vertices[1000];
     Vertex* buffer = vertices;
-
-    glUseProgram(program.shaderID);
+    
+    indexCount = 0;
     /* to test it for now draw one texture */
     for (int y = -6; y < 5; y++) {
         for (int x = -6; x < 5; x++) {
-            buffer = vinoxCreateQuad(buffer, x * 100, y * 100, 100.0f, 100.0f, (x + y) % 2, WHITE);
+            buffer = vinoxCreateQuad(buffer, x * 100, y * -100, 100.0f, 100.0f, (x + y) % 2, WHITE);
             indexCount += 6;
         }
     }
+    
+    buffer = vinoxCreateQuad(buffer, 500.0f, 500.0f, 50.0f, 50.0f, 0, (vec4) { 0.1f, 0.8f, 0.7f, 1.0f });
+    indexCount += 6;
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), &vertices[0]);
 
     mat4 viewprojection = GLM_MAT4_IDENTITY_INIT;
-        
+       
+    width = 1000, height = 1000;
     /* Camera transformations */
     mat4 projection = GLM_MAT4_IDENTITY_INIT;
     mat4 view = GLM_MAT4_IDENTITY_INIT;
@@ -146,16 +162,16 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
         
     /* Camera origin */
     mat4 position = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(position, (vec3) { 0.0f, 0.0f, 0.0f });
+    glm_translate(position, (vec3) { width/2, height/2, 0.0f });
         
     /* Camera rotation */
-    glm_rotate(position, glm_rad(0.0f), (vec3) { 0.0f, 0.0f, 1.0f });
+    glm_rotate(position, glm_rad(camera.rotation), (vec3) { 0.0f, 0.0f, 1.0f });
         
     /* Camera zoom */
-    glm_scale(position, (vec3) { 1.0f, 1.0f, 1.0f });
+    glm_scale(position, (vec3) { camera.scale, camera.scale, 1.0f });
         
     /* Camera position */
-    vec3 camPosition = { width/2, height/2, 0.0f };
+    vec3 camPosition = { camera.position.x, camera.position.y, 0.0f };
     glm_translate(position, camPosition);
         
         
@@ -173,7 +189,6 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
 
 void vinoxEndDrawing() {
 
-    glUseProgram(program.shaderID);
     /* Bind VAO extension */
     PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
     PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
@@ -197,7 +212,8 @@ void vinoxEndDrawing() {
     
     glBindVertexArrayOES(vao);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-}
+    
+}   
 
 int vinoxEnd() {
 
@@ -226,31 +242,32 @@ unsigned int vinoxCreateTexture(const char* path) {
 }
 
 Vertex* vinoxCreateQuad(Vertex* target, float x, float y, float width, float height,
-        float textureID, Vec4 color) {
-
-    target->position = (Vec3) { x, y, 0.0f };
-    target->color = color;
-    target->texCoords = (Vec2) { 0.0f, 0.0f };
-    target->texIndex = textureID;
-    target++;
-
-    target->position = (Vec3) { x + width, y, 0.0f };
-    target->color = color;
-    target->texCoords = (Vec2) { 1.0f, 0.0f };
-    target->texIndex = textureID;
-    target++;
-
-    target->position = (Vec3) { x + width, y + height, 0.0f };
-    target->color = color;
-    target->texCoords = (Vec2) { 1.0f, 1.0f };
-    target->texIndex = textureID;
-    target++;
-
-    target->position = (Vec3) { x, y + height, 0.0f };
-    target->color = color;
-    target->texCoords = (Vec2) { 0.0f, 1.0f };
-    target->texIndex = textureID;
-    target++;
+        float textureID, vec4 color) {
     
+    glm_vec3_copy((vec3) {x, y, 0.0f }, target->position);
+    glm_vec4_copy(color, target->color);
+    glm_vec2_copy((vec2) { 0.0f, 0.0f }, target->texCoords);
+    target->texIndex = textureID;
+    target++;
+
+    glm_vec3_copy((vec3) {x + width, y, 0.0f }, target->position);
+    glm_vec4_copy(color, target->color);
+    glm_vec2_copy((vec2) { 1.0f, 0.0f }, target->texCoords);
+    target->texIndex = textureID;
+    target++;
+
+    glm_vec3_copy((vec3) {x + width, y + height, 0.0f }, target->position);
+    glm_vec4_copy(color, target->color);
+    glm_vec2_copy((vec2) { 1.0f, 1.0f }, target->texCoords);
+    target->texIndex = textureID;
+    target++;
+
+    glm_vec3_copy((vec3) {x, y + height, 0.0f }, target->position);
+    glm_vec4_copy(color, target->color);
+    glm_vec2_copy((vec2) { 0.0f, 1.0f }, target->texCoords);
+    target->texIndex = textureID;
+    target++;
+
+    return target;
     return target;
 }
