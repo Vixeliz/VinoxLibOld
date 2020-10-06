@@ -9,8 +9,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#define WHITE (vec4) { 1.0f, 1.0f, 1.0f, 1.0f }
-
+/* Functions for the file */
+static Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
+        float textureID, vec4 color);
 
 /* Global variables in file */
 static ShaderProgram program;
@@ -164,22 +165,8 @@ int vinoxInit() {
 
 void vinoxBeginDrawing(Camera camera, int width, int height) {
     buffer = vertices;
-    glViewport(0, 0, width, height);
-
     indexCount = 0;
-    /* to test it for now draw one texture */
-    for (int y = -6; y < 5; y++) {
-        for (int x = -6; x < 5; x++) {
-            buffer = vinoxCreateQuad(buffer, x * 100, y * -100, 100.0f, 100.0f, (x + y) % 2, WHITE);
-            indexCount += 6;
-        }
-    }
-    
-    buffer = vinoxCreateQuad(buffer, 500.0f, 500.0f, 50.0f, 50.0f, 0, (vec4) { 0.1f, 0.8f, 0.7f, 1.0f });
-    indexCount += 6;
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), &vertices[0]);
+    glViewport(0, 0, width, height);
 
     mat4 viewprojection = GLM_MAT4_IDENTITY_INIT;
     calculateCameraMatrix(viewprojection, &camera, width, height);
@@ -190,9 +177,18 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
     
 }
 
+int vinoxCreateQuad(float x, float y, float width, float height, float textureID, vec4 color) {
+    buffer = createQuad(buffer, x, y, width, height, textureID, color);
+    indexCount += 6;
+
+    return 0;
+}
 
 void vinoxEndDrawing() {
 
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), &vertices[0]);
+    
     /* Bind VAO extension */
     PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
     PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
@@ -245,7 +241,7 @@ unsigned int vinoxCreateTexture(const char* path) {
     return textureID;
 }
 
-Vertex* vinoxCreateQuad(Vertex* target, float x, float y, float width, float height,
+Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
         float textureID, vec4 color) {
     
     glm_vec3_copy((vec3) {x, y, 0.0f }, target->position);
@@ -272,6 +268,5 @@ Vertex* vinoxCreateQuad(Vertex* target, float x, float y, float width, float hei
     target->texIndex = textureID;
     target++;
 
-    return target;
     return target;
 }

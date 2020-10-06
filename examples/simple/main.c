@@ -27,6 +27,11 @@ int main(void) {
         glfwGetFramebufferSize(window, &width, &height);
         
         vinoxBeginDrawing(camera, width, height);
+           for (int y = -6; y < 5; y++) {
+            for (int x = -6; x < 5; x++) {
+            vinoxCreateQuad(x * 100.0f, y * 100.0f, 100.0f, 100.0f, 1, WHITE);
+            }   
+        }
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);
