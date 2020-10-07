@@ -7,6 +7,11 @@ static float deltaTime = 0.0f;
 static float lastFrame = 0.0f;
 static Vector2 playerPos = (Vector2) { 0.0f, 0.0f };
 
+int isKeyPressed(GLFWwindow *window, int keycode) {
+    int state = glfwGetKey(window, keycode);
+    return state == GLFW_PRESS || state == GLFW_REPEAT;
+}
+
 void processInput(GLFWwindow *window) {
     
 
@@ -18,16 +23,16 @@ void processInput(GLFWwindow *window) {
     lastFrame = currentFrame;
     
     const float playerSpeed = 150.0f * deltaTime;
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    if (isKeyPressed(window, GLFW_KEY_W)) {
         playerPos.y -= playerSpeed;
     }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    if (isKeyPressed(window, GLFW_KEY_S)) {
         playerPos.y += playerSpeed;
     }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    if (isKeyPressed(window, GLFW_KEY_A)) {
         playerPos.x -= playerSpeed;
     }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    if (isKeyPressed(window, GLFW_KEY_D)) {
         playerPos.x += playerSpeed;
     }
 }
@@ -68,7 +73,7 @@ int main(void) {
                 vinoxCreateQuad(x * 10.0f, y * 10.0f, 10.0f, 10.0f, 1, WHITE);
             }   
         }
-            vinoxCreateQuad(playerPos.x, playerPos.y, 50.0f, 50.0f, 0, (vec4) { 0.1f, 0.6f, 0.5f, 1.0f });
+            vinoxCreateQuad(playerPos.x, playerPos.y, 50.0f, 50.0f, 0, (vec4) { 0.1f, 0.6f, 0.5f, 0.3f });
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);
