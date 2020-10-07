@@ -4,13 +4,23 @@ Features:
 * [ ] Audio
 * [ ] Dynamically split up draw calls if the amount of vertices is too large that way we don't segfault
 * [ ] allow for drawing a part of a texture
+* [ ] Performance
+    * [ ] Batch together all geometry
+    * [ ] Only render a batch if it has changed
+    * [ ] split up position, coords/textureid, and colors into seperate vbos so we only have to update one at a time
+    * [ ] Good default value for MAXQUADS
+    * [ ] Batch type to make it easier to organize things
+    * [ ] Instead of over complicating and using an array of arrays just use one array(vertex) detect if it will overfill if so render then clear it
+
 
 Clean Up:
-* [o] Modularize
+* [.] Modularize
     1) [X] Seperate all opengl code to other files and functions
     2) [ ] Create structures for certain types such as rectangles and camera
     3) [ ] Use cglm types
-    4) [X] Seperate example from lib(the example should compile seperatly and be able to use a .a file for the library)
+    4) [ ] Split up functions more
+    5) [ ] More files
+    6) [X] Seperate example from lib(the example should compile seperatly and be able to use a .a file for the library)
 * [ ] Documentation
     1) [ ] Have better comments in the code
     2) [ ] Have a structure file for how the code is layed out(although should explain itself)

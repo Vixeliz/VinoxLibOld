@@ -44,6 +44,40 @@ static bool hasCalled = false;
     }
 }*/
 
+static int drawBatch() {
+    
+    /* Bind VAO extension */
+    PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
+    PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
+    PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
+    PFNGLISVERTEXARRAYOESPROC glIsVertexArrayOES;
+    glGenVertexArraysOES = 
+    (PFNGLGENVERTEXARRAYSOESPROC)
+    eglGetProcAddress("glGenVertexArraysOES");
+    
+    glBindVertexArrayOES = 
+    (PFNGLBINDVERTEXARRAYOESPROC)
+    eglGetProcAddress("glBindVertexArrayOES");
+    
+    glDeleteVertexArraysOES =
+    (PFNGLDELETEVERTEXARRAYSOESPROC)
+    eglGetProcAddress("glDeleteVertexArraysOES");
+    
+    glIsVertexArrayOES = 
+    (PFNGLISVERTEXARRAYOESPROC)
+    eglGetProcAddress("glIsVertexArrayOES");
+    
+    for (int i = 0; i <= drawCalls; i ++) {
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vertexArr[i][0]);
+        
+        glBindVertexArrayOES(vao);
+        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+    }
+
+
+}
+
 static int calculateCameraMatrix(mat4 viewprojection, Camera *camera, int width, int height) {
 
     /* Camera transformations */
@@ -213,35 +247,8 @@ int vinoxCreateQuad(float x, float y, float width, float height, float textureID
 }
 
 void vinoxEndDrawing() {
-
-    /* Bind VAO extension */
-    PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
-    PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
-    PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
-    PFNGLISVERTEXARRAYOESPROC glIsVertexArrayOES;
-    glGenVertexArraysOES = 
-    (PFNGLGENVERTEXARRAYSOESPROC)
-    eglGetProcAddress("glGenVertexArraysOES");
     
-    glBindVertexArrayOES = 
-    (PFNGLBINDVERTEXARRAYOESPROC)
-    eglGetProcAddress("glBindVertexArrayOES");
-    
-    glDeleteVertexArraysOES =
-    (PFNGLDELETEVERTEXARRAYSOESPROC)
-    eglGetProcAddress("glDeleteVertexArraysOES");
-    
-    glIsVertexArrayOES = 
-    (PFNGLISVERTEXARRAYOESPROC)
-    eglGetProcAddress("glIsVertexArrayOES");
-    
-    for (int i = 0; i <= drawCalls; i ++) {
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vertexArr[i][0]);
-        
-        glBindVertexArrayOES(vao);
-        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-    }
+    drawBatch();
 
     currentDrawCall = 0;
     lastDrawCall = 0;
