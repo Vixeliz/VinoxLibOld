@@ -25,8 +25,12 @@ static const size_t maxQuadCount = 1000;
 static const size_t maxVertexCount = maxQuadCount * 4;
 static const size_t indicesCount = maxQuadCount * 6;
 static Vertex **vertexArr = NULL;
-//static Vertex vertices[4000];
-//static Vertex* buffer = vertices;
+static Vertex vertices[4000];
+static Vertex* buffer = vertices;
+static int currentFrame;
+static int lastFrame;
+static int currentDrawCall = 0;
+static int lastDrawCall = 0;
 /*const char *getGLError(GLenum err) {
     switch (err) {
         case GL_NO_ERROR:   return "No error";
@@ -168,10 +172,12 @@ int vinoxInit() {
 }
 
 void vinoxBeginDrawing(Camera camera, int width, int height) {
-    //Vertex *buffer = vertices;
+    currentFrame++;
+    sb_free(vertexArr);
+    vertexArr = NULL;
+    buffer = vertices;
     indexCount = 0;
     vertexCount = 0;
-    //drawCalls = 1;
     glViewport(0, 0, width, height);
 
     mat4 viewprojection = GLM_MAT4_IDENTITY_INIT;
@@ -184,27 +190,28 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
 }
 
 int vinoxCreateQuad(float x, float y, float width, float height, float textureID, vec4 color) {
-    if (vertexCount > maxVertexCount) {
-        printf("No more vertices left!\n not draiwing!\n");
-        drawCalls += 1;
-        return 0;
-    }
 
-        Vertex vertices[4000];
-        Vertex *buffer = vertices;
-
+        drawCalls = vertexCount/maxVertexCount;
+        printf("Vertex: %i\n:", vertexCount);
+        currentDrawCall = drawCalls;
+        if(currentDrawCall > lastDrawCall)
+            buffer = vertices;
+        
+        printf("%i\n", currentDrawCall);
+        //static Vertex vertices[4000];
+        //Vertex *buffer = vertices;
         buffer = createQuad(buffer, x, y, width, height, textureID, color);
         indexCount += 6;
-        sb_push(vertexArr, vertices);
+        
+        if(currentFrame > lastFrame || currentDrawCall > lastDrawCall)
+            sb_push(vertexArr, vertices);
 
+        lastDrawCall = currentDrawCall;
     return 0;
 }
 
 void vinoxEndDrawing() {
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4000, &sb_last(vertexArr)[0]);
-    
     /* Bind VAO extension */
     PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
     PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
@@ -226,9 +233,18 @@ void vinoxEndDrawing() {
     (PFNGLISVERTEXARRAYOESPROC)
     eglGetProcAddress("glIsVertexArrayOES");
     
-    glBindVertexArrayOES(vao);
-    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+    for (int i = 0; i <= drawCalls; i ++) {
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4000, &vertexArr[i][0]);
+        
+        glBindVertexArrayOES(vao);
+        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+    }
     
+    lastFrame = currentFrame;
+    currentDrawCall = 0;
+    lastDrawCall = 0;
+    vertexCount = 0;
 }   
 
 int vinoxEnd() {

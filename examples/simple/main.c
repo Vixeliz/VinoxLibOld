@@ -5,7 +5,7 @@
 /* Global variables in file */
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-Vector2 playerPos = (Vector2) { 500.0f, 500.0f };
+Vector2 playerPos = (Vector2) { -50.0f, -50.0f };
 
 void processInput(GLFWwindow *window) {
 
@@ -61,9 +61,9 @@ int main(void) {
         camera.origin.y = height/2 - 50.0f;
 
         vinoxBeginDrawing(camera, width, height);
-           for (int y = -6; y < 1; y++) {
-            for (int x = -6; x < 1; x++) {
-            vinoxCreateQuad(x * 100.0f, y * 100.0f, 100.0f, 100.0f, 1, WHITE);
+           for (int y = -6; y < 30; y++) {
+            for (int x = -6; x < 30; x++) {
+            vinoxCreateQuad(x * 10.0f, y * 10.0f, 10.0f, 10.0f, 1, WHITE);
             }   
         }
             vinoxCreateQuad(playerPos.x, playerPos.y, 50.0f, 50.0f, 0, (vec4) { 0.1f, 0.6f, 0.5f, 1.0f });
