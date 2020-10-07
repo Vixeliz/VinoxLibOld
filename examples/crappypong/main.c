@@ -22,9 +22,9 @@ static float deltaTime = 0.0f;
 static float lastFrame = 0.0f;
 
 static int resetBall() {
-    ball.pos = (Vector2) { 640/2, 480/2 };
-    ball.size = (Vector2) { 10, 10 };
-    ball.mov = (Vector2) { 2, 0 };
+    ball.pos = (Vector2) { 1920/2, 1080/2 };
+    ball.size = (Vector2) { 25, 25 };
+    ball.mov = (Vector2) { 7, 0 };
 
     return 0;
 }
@@ -81,13 +81,13 @@ static int moveBall() {
         resetBall();
     }
 
-    if (ball.pos.x > 640 - ball.size.x) {
+    if (ball.pos.x > 1920 - ball.size.x) {
         scores[0] += 1;
         printScore();
         resetBall();
     }
 
-    if (ball.pos.y < 0 || ball.pos.y > 480 - ball.size.y)
+    if (ball.pos.y < 0 || ball.pos.y > 1080 - ball.size.y)
         ball.mov.y = -ball.mov.y;
 
     for (int i = 0; i < 2; i++) {
@@ -102,33 +102,33 @@ static int moveBall() {
             int hitPos = (paddle[i].pos.y + paddle[i].size.y) - ball.pos.y;
             
             if (hitPos >= 0 && hitPos < (paddle[i].size.y * 0.1)) {
-                ball.mov.y = 2.5;
+                ball.mov.y = 7;
             }
             else if (hitPos >= (paddle[i].size.y * 0.1) && hitPos < (paddle[i].size.y * 0.2)) {
-                ball.mov.y = 2;
+                ball.mov.y = 6;
             }
             else if (hitPos >= (paddle[i].size.y * 0.2) && hitPos < (paddle[i].size.y * 0.3)) {
-                ball.mov.y = 1.5;
+                ball.mov.y = 5;
             }
             else if (hitPos >= (paddle[i].size.y * 0.3) && hitPos < (paddle[i].size.y * 0.4)) {
-                ball.mov.y = 1;
+                ball.mov.y = 4;
             }
             else if (hitPos >= (paddle[i].size.y * 0.4) && hitPos < (paddle[i].size.y * 0.5)) {
                 ball.mov.y = 0;
             }
             else if (hitPos >= (paddle[i].size.y * 0.5) && hitPos < (paddle[i].size.y * 0.6)) {
-                ball.mov.y = -1;
+                ball.mov.y = -4;
             }
             else if (hitPos >= (paddle[i].size.y * 0.6) && hitPos < (paddle[i].size.y * 0.7)) {
-                ball.mov.y = -1.5;
+                ball.mov.y = -5;
             }
             else if (hitPos >= (paddle[i].size.y * 0.7) && hitPos < (paddle[i].size.y * 0.8)) {
-                ball.mov.y = -2;
+                ball.mov.y = -6;
             }
             else if (hitPos >= (paddle[i].size.y * 0.8) && hitPos < (paddle[i].size.y * 0.9)) {
-                ball.mov.y = -2.5;
+                ball.mov.y = -7;
             } else {
-                ball.mov.y = -2.75;
+                ball.mov.y = -7.5;
             }
 
 
@@ -137,8 +137,8 @@ static int moveBall() {
                 if (ball.pos.x < 30)
                     ball.pos.x = 30;
             } else {
-                if (ball.pos.x > 600)
-                    ball.pos.x = 600;
+                if (ball.pos.x > 1840)
+                    ball.pos.x = 1840;
         }
         }
     }
@@ -161,7 +161,7 @@ void processInput(GLFWwindow *window) {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     
-    const float playerSpeed = 400.0f * deltaTime;
+    const float playerSpeed = 750.0f * deltaTime;
     if (isKeyPressed(window, GLFW_KEY_W)) {
         paddle[0].pos.y -= playerSpeed;
     }
@@ -181,12 +181,12 @@ int main(void) {
     GLFWwindow* window;
     glfwInit();
     
-    window = glfwCreateWindow(640, 480, "Vinox", NULL, NULL);
+    window = glfwCreateWindow(1920, 1080, "Vinox", NULL, NULL);
     
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
-    if (vinoxInit() == -1) {
+    if (vinoxInit(1920, 1080) == -1) {
         printf("Init of vinox failed. aborting\n");
         return -1;
     }
@@ -198,24 +198,24 @@ int main(void) {
 
     resetBall();
 
-    paddle[0].size = (Vector2) { 25.0f, 100.0f };
-    paddle[1].size = (Vector2) { 25.0f, 100.0f };
+    paddle[0].size = (Vector2) { 25.0f, 150.0f };
+    paddle[1].size = (Vector2) { 25.0f, 150.0f };
     paddle[0].pos = (Vector2) { 25.0f, 0.0f };
-    paddle[1].pos= (Vector2) { 640.0f - paddle[1].size.x - 25.0f, 0.0f };
+    paddle[1].pos= (Vector2) { 1920.0f - paddle[1].size.x - 25.0f, 0.0f };
     
     while (!glfwWindowShouldClose(window)) {
         int width, height;
 
         processInput(window);
         
-        if (!(paddle[0].pos.y <= 480 - paddle[0].size.y))
-            paddle[0].pos.y = 480 - paddle[0].size.y;
+        if (!(paddle[0].pos.y <= 1080 - paddle[0].size.y))
+            paddle[0].pos.y = 1080 - paddle[0].size.y;
 
         if (!(paddle[0].pos.y >= 0))
             paddle[0].pos.y = 0;
 
-        if (!(paddle[1].pos.y <= 480 - paddle[1].size.y))
-            paddle[1].pos.y = 480 - paddle[1].size.y;
+        if (!(paddle[1].pos.y <= 1080 - paddle[1].size.y))
+            paddle[1].pos.y = 1080 - paddle[1].size.y;
 
         if (!(paddle[1].pos.y >= 0))
             paddle[1].pos.y = 0;
@@ -225,11 +225,11 @@ int main(void) {
         glfwGetFramebufferSize(window, &width, &height);
         
         camera.origin.x = 0;
-        camera.origin.y = height/2 - 240;
+        camera.origin.y = 0;
 
         vinoxBeginDrawing(camera, width, height);
-        vinoxCreateQuad(0.0f, 0.0f, 15, 480, 0, WHITE);
-        vinoxCreateQuad(640.0f - 15, 0.0f, 15, 480, 0, WHITE);
+        vinoxCreateQuad(0.0f, 0.0f, 15, 1080, 0, WHITE);
+        vinoxCreateQuad(1920.0f - 15, 0.0f, 15, 1080, 0, WHITE);
         vinoxCreateQuad(paddle[0].pos.x, paddle[0].pos.y, paddle[0].size.x, paddle[0].size.y, 0, (vec4) { 0.1f, 0.6f, 0.5f, 1.0f });
         vinoxCreateQuad(paddle[1].pos.x, paddle[1].pos.y, paddle[1].size.x, paddle[1].size.y, 0, (vec4) { 0.1f, 0.6f, 0.5f, 1.0f });
         vinoxCreateQuad(ball.pos.x, ball.pos.y, ball.size.x, ball.size.y, 0, WHITE);

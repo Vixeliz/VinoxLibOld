@@ -23,7 +23,7 @@ int main(void) {
     }
 
     Camera camera;
-    camera.position = (Vec2) { 500.0f, 500.0f };
+    camera.position = (Vector2) { 500.0f, 500.0f };
     camera.scale = 1.0f;
     camera.rotation = 0.0f;
     

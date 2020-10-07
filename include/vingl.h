@@ -22,7 +22,7 @@ typedef struct {
     Vector2 origin;
 } Camera;
 
-int vinoxInit();
+int vinoxInit(int width, int height);
 void vinoxBeginDrawing(Camera camera, int width, int height);
 void vinoxEndDrawing();
 int vinoxEnd();

@@ -202,17 +202,23 @@ static int createBuffer() {
 
     return 0;
 }
-
-static int createFramebuffer() {
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-    glGenTextures(1, &textureColorbuffer);
+static int redrawFramebuffer(int width, int height) {
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+    return 0;
+}
+
+static int createFramebuffer(int width, int height) {
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    
+    glGenTextures(1, &textureColorbuffer);
+
+    redrawFramebuffer(width, height);
+
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         printf("Framebuffer failure!\n");
 
@@ -220,7 +226,7 @@ static int createFramebuffer() {
     return 0;
 }
 
-int vinoxInit() {
+int vinoxInit(int width, int height) {
     
     glEnable(GL_DEPTH_TEST);
     program.type = 0;
@@ -251,7 +257,7 @@ int vinoxInit() {
     unsigned int loc2 = glGetUniformLocation(screenProgram.shaderID, "screenTexture");
     glUniform1i(loc2, 1);
 
-    createFramebuffer();
+    createFramebuffer(width, height);
 
     return 0;
 }
@@ -262,6 +268,7 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
     vertexCount = 0;
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glEnable(GL_DEPTH_TEST);
+    redrawFramebuffer(width, height);
     glViewport(0, 0, width, height);
 
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);

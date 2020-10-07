@@ -48,7 +48,7 @@ int main(void) {
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
-    if (vinoxInit() == -1) {
+    if (vinoxInit(640, 480) == -1) {
         printf("Init of vinox failed. aborting\n");
         return -1;
     }
