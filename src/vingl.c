@@ -18,7 +18,11 @@ static ShaderProgram program;
 static GLuint vao;
 static GLuint vbo;
 static uint32_t indexCount = 0;
-static Vertex vertices[1000];
+static uint32_t vertexCount = 0;
+static const size_t maxQuadCount = 1000;
+static const size_t maxVertexCount = maxQuadCount * 4;
+static const size_t indicesCount = maxQuadCount * 6;
+static Vertex vertices[4000];
 static Vertex* buffer = vertices;
 /*const char *getGLError(GLenum err) {
     switch (err) {
@@ -92,9 +96,6 @@ static int createBuffer() {
     glGenBuffers(1, &ebo);
     glBindVertexArrayOES(vao);
 
-    const size_t maxQuadCount = 1000;
-    const size_t maxVertexCount = maxQuadCount * 4;
-    const size_t indicesCount = maxQuadCount * 6;
     
 
     /* This preallocates our max indices for every draw call */
@@ -166,6 +167,7 @@ int vinoxInit() {
 void vinoxBeginDrawing(Camera camera, int width, int height) {
     buffer = vertices;
     indexCount = 0;
+    vertexCount = 0;
     glViewport(0, 0, width, height);
 
     mat4 viewprojection = GLM_MAT4_IDENTITY_INIT;
@@ -178,6 +180,11 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
 }
 
 int vinoxCreateQuad(float x, float y, float width, float height, float textureID, vec4 color) {
+    if (vertexCount > maxVertexCount) {
+        printf("No more vertices left!\n not draiwing!\n");
+        return 0;
+    }
+
     buffer = createQuad(buffer, x, y, width, height, textureID, color);
     indexCount += 6;
 
@@ -268,5 +275,6 @@ Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
     target->texIndex = textureID;
     target++;
 
+    vertexCount += 4;
     return target;
 }
