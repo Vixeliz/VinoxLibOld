@@ -2,15 +2,15 @@ Features:
 * [ ] Limit fps
 * [ ] Function for updating in a fixed time(like units fixedtimeupdate function)?
 * [ ] Audio
-* [ ] Dynamically split up draw calls if the amount of vertices is too large that way we don't segfault
+* [X] Dynamically split up draw calls if the amount of vertices is too large that way we don't segfault
 * [ ] allow for drawing a part of a texture
-* [ ] Performance
+* [.] Performance
     * [ ] Batch together all geometry
     * [ ] Only render a batch if it has changed
     * [ ] split up position, coords/textureid, and colors into seperate vbos so we only have to update one at a time
-    * [ ] Good default value for MAXQUADS
+    * [X] Good default value for MAXQUADS
     * [ ] Batch type to make it easier to organize things
-    * [ ] Instead of over complicating and using an array of arrays just use one array(vertex) detect if it will overfill if so render then clear it
+    * [X] Instead of over complicating and using an array of arrays just use one array(vertex) detect if it will overfill if so render then clear it
 
 
 Clean Up:

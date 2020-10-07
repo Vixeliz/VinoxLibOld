@@ -8,7 +8,6 @@
 #include "shader.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "stretchy_buffer.h"
 
 /* Functions for the file */
 static Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
@@ -21,10 +20,9 @@ static GLuint vbo;
 static uint32_t indexCount = 0;
 static uint32_t vertexCount = 0;
 static uint32_t drawCalls = 0;
-#define MAXQUADCOUNT 80000
+#define MAXQUADCOUNT 20000
 #define MAXVERTEXCOUNT MAXQUADCOUNT * 4
 #define INDICESCOUNT MAXQUADCOUNT * 6
-static Vertex **vertexArr = NULL;
 static Vertex vertices[MAXVERTEXCOUNT];
 static Vertex* buffer = vertices;
 static int currentFrame;
@@ -67,13 +65,11 @@ static int drawBatch() {
     (PFNGLISVERTEXARRAYOESPROC)
     eglGetProcAddress("glIsVertexArrayOES");
     
-    for (int i = 0; i <= drawCalls; i ++) {
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vertexArr[i][0]);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vertices[0]);
         
-        glBindVertexArrayOES(vao);
-        glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-    }
+    glBindVertexArrayOES(vao);
+    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 
 
 }
@@ -207,8 +203,6 @@ int vinoxInit() {
 }
 
 void vinoxBeginDrawing(Camera camera, int width, int height) {
-    sb_free(vertexArr);
-    vertexArr = NULL;
     buffer = vertices;
     indexCount = 0;
     vertexCount = 0;
@@ -220,7 +214,6 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
     
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    
 }
 
 int vinoxCreateQuad(float x, float y, float width, float height, float textureID, vec4 color) {
@@ -231,16 +224,15 @@ int vinoxCreateQuad(float x, float y, float width, float height, float textureID
         //Vertex *buffer = vertices;
         drawCalls = vertexCount/(MAXVERTEXCOUNT);
         currentDrawCall = drawCalls;
-
-        buffer = createQuad(buffer, x, y, width, height, textureID, color);
-        indexCount += 6;
-        
-        sb_push(vertexArr, vertices);
-
-        if ((int)((vertexCount += 4)/(MAXVERTEXCOUNT)) > currentDrawCall) {
+         
+        if ((int)((vertexCount += 100)/(MAXVERTEXCOUNT)) > currentDrawCall) {
+            drawBatch();
+            memset(&vertices[0], 0, sizeof(vertices));
             buffer = vertices;
         }
 
+        buffer = createQuad(buffer, x, y, width, height, textureID, color);
+        indexCount += 6;
 
         lastDrawCall = currentDrawCall;
     return 0;
