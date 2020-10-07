@@ -8,6 +8,7 @@
 #include "shader.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include "stretchy_buffer.h"
 
 /* Functions for the file */
 static Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
@@ -19,11 +20,13 @@ static GLuint vao;
 static GLuint vbo;
 static uint32_t indexCount = 0;
 static uint32_t vertexCount = 0;
+static uint32_t drawCalls = 0;
 static const size_t maxQuadCount = 1000;
 static const size_t maxVertexCount = maxQuadCount * 4;
 static const size_t indicesCount = maxQuadCount * 6;
-static Vertex vertices[4000];
-static Vertex* buffer = vertices;
+static Vertex **vertexArr = NULL;
+//static Vertex vertices[4000];
+//static Vertex* buffer = vertices;
 /*const char *getGLError(GLenum err) {
     switch (err) {
         case GL_NO_ERROR:   return "No error";
@@ -165,9 +168,10 @@ int vinoxInit() {
 }
 
 void vinoxBeginDrawing(Camera camera, int width, int height) {
-    buffer = vertices;
+    //Vertex *buffer = vertices;
     indexCount = 0;
     vertexCount = 0;
+    //drawCalls = 1;
     glViewport(0, 0, width, height);
 
     mat4 viewprojection = GLM_MAT4_IDENTITY_INIT;
@@ -182,11 +186,16 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
 int vinoxCreateQuad(float x, float y, float width, float height, float textureID, vec4 color) {
     if (vertexCount > maxVertexCount) {
         printf("No more vertices left!\n not draiwing!\n");
+        drawCalls += 1;
         return 0;
     }
 
-    buffer = createQuad(buffer, x, y, width, height, textureID, color);
-    indexCount += 6;
+        Vertex vertices[4000];
+        Vertex *buffer = vertices;
+
+        buffer = createQuad(buffer, x, y, width, height, textureID, color);
+        indexCount += 6;
+        sb_push(vertexArr, vertices);
 
     return 0;
 }
@@ -194,7 +203,7 @@ int vinoxCreateQuad(float x, float y, float width, float height, float textureID
 void vinoxEndDrawing() {
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), &vertices[0]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4000, &sb_last(vertexArr)[0]);
     
     /* Bind VAO extension */
     PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
