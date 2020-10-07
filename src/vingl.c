@@ -21,16 +21,17 @@ static GLuint vbo;
 static uint32_t indexCount = 0;
 static uint32_t vertexCount = 0;
 static uint32_t drawCalls = 0;
-static const size_t maxQuadCount = 1000;
-static const size_t maxVertexCount = maxQuadCount * 4;
-static const size_t indicesCount = maxQuadCount * 6;
+#define MAXQUADCOUNT 80000
+#define MAXVERTEXCOUNT MAXQUADCOUNT * 4
+#define INDICESCOUNT MAXQUADCOUNT * 6
 static Vertex **vertexArr = NULL;
-static Vertex vertices[4000];
+static Vertex vertices[MAXVERTEXCOUNT];
 static Vertex* buffer = vertices;
 static int currentFrame;
 static int lastFrame;
 static int currentDrawCall = 0;
 static int lastDrawCall = 0;
+static bool hasCalled = false;
 /*const char *getGLError(GLenum err) {
     switch (err) {
         case GL_NO_ERROR:   return "No error";
@@ -106,10 +107,10 @@ static int createBuffer() {
     
 
     /* This preallocates our max indices for every draw call */
-    uint32_t indices[indicesCount];
+    uint32_t indices[INDICESCOUNT];
     uint32_t offset = 0;
     
-    for (size_t i = 0; i < indicesCount; i += 6) {
+    for (size_t i = 0; i < INDICESCOUNT; i += 6) {
         indices[i + 0] = 0 + offset;
         indices[i + 1] = 1 + offset;
         indices[i + 2] = 2 + offset;
@@ -123,7 +124,7 @@ static int createBuffer() {
     
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * maxVertexCount, 
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAXVERTEXCOUNT, 
             NULL, GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
@@ -172,7 +173,6 @@ int vinoxInit() {
 }
 
 void vinoxBeginDrawing(Camera camera, int width, int height) {
-    currentFrame++;
     sb_free(vertexArr);
     vertexArr = NULL;
     buffer = vertices;
@@ -190,21 +190,23 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
 }
 
 int vinoxCreateQuad(float x, float y, float width, float height, float textureID, vec4 color) {
-
-        drawCalls = vertexCount/maxVertexCount;
-        printf("Vertex: %i\n:", vertexCount);
-        currentDrawCall = drawCalls;
-        if(currentDrawCall > lastDrawCall)
-            buffer = vertices;
         
-        printf("%i\n", currentDrawCall);
+        //TODO: figure out how to draw when we start the new drawCall
+        //IDEA: set buffer to vertices after we push the vertices array
         //static Vertex vertices[4000];
         //Vertex *buffer = vertices;
+        drawCalls = vertexCount/(MAXVERTEXCOUNT);
+        currentDrawCall = drawCalls;
+
         buffer = createQuad(buffer, x, y, width, height, textureID, color);
         indexCount += 6;
         
-        if(currentFrame > lastFrame || currentDrawCall > lastDrawCall)
-            sb_push(vertexArr, vertices);
+        sb_push(vertexArr, vertices);
+
+        if ((int)((vertexCount += 4)/(MAXVERTEXCOUNT)) > currentDrawCall) {
+            buffer = vertices;
+        }
+
 
         lastDrawCall = currentDrawCall;
     return 0;
@@ -235,13 +237,12 @@ void vinoxEndDrawing() {
     
     for (int i = 0; i <= drawCalls; i ++) {
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * 4000, &vertexArr[i][0]);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vertexArr[i][0]);
         
         glBindVertexArrayOES(vao);
         glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
     }
-    
-    lastFrame = currentFrame;
+
     currentDrawCall = 0;
     lastDrawCall = 0;
     vertexCount = 0;
