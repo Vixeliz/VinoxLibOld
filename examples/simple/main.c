@@ -3,31 +3,33 @@
 #include <vinox/vinox.h>
 
 /* Global variables in file */
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-Vector2 playerPos = (Vector2) { 0.0f, 0.0f };
+static float deltaTime = 0.0f;
+static float lastFrame = 0.0f;
+static Vector2 playerPos = (Vector2) { 0.0f, 0.0f };
 
 void processInput(GLFWwindow *window) {
+    
 
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 
-  float currentFrame = glfwGetTime();
-  deltaTime = currentFrame - lastFrame;
-  lastFrame = currentFrame;
-  const float playerSpeed = 150.0f * deltaTime;
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    playerPos.y -= playerSpeed;
-  }
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    playerPos.y += playerSpeed;
-  }
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    playerPos.x -= playerSpeed;
-  }
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    playerPos.x += playerSpeed;
-  }
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+    
+    const float playerSpeed = 150.0f * deltaTime;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        playerPos.y -= playerSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        playerPos.y += playerSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        playerPos.x -= playerSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        playerPos.x += playerSpeed;
+    }
 }
 
 int main(void) {

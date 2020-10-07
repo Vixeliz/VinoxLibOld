@@ -25,11 +25,8 @@ static uint32_t drawCalls = 0;
 #define INDICESCOUNT MAXQUADCOUNT * 6
 static Vertex vertices[MAXVERTEXCOUNT];
 static Vertex* buffer = vertices;
-static int currentFrame;
-static int lastFrame;
 static int currentDrawCall = 0;
 static int lastDrawCall = 0;
-static bool hasCalled = false;
 /*const char *getGLError(GLenum err) {
     switch (err) {
         case GL_NO_ERROR:   return "No error";
@@ -71,7 +68,7 @@ static int drawBatch() {
     glBindVertexArrayOES(vao);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 
-
+    return 0;
 }
 
 static int calculateCameraMatrix(mat4 viewprojection, Camera *camera, int width, int height) {
@@ -198,6 +195,8 @@ int vinoxInit() {
     glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex),
             (void*)offsetof(Vertex, texIndex));
     glEnableVertexAttribArray(3);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     return 0;
 }
