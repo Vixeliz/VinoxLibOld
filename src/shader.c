@@ -69,7 +69,7 @@ static int compileFragmentShader(ShaderProgram *program) {
 }
 
 int vinoxCompileShader(ShaderProgram *program) {
-int abort;
+int abort = 0;
 int testval;
 
     compileVertexShader(program);
