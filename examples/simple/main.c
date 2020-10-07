@@ -73,7 +73,7 @@ int main(void) {
                 vinoxCreateQuad(x * 10.0f, y * 10.0f, 10.0f, 10.0f, 1, WHITE);
             }   
         }
-            vinoxCreateQuad(playerPos.x, playerPos.y, 50.0f, 50.0f, 0, (vec4) { 0.1f, 0.6f, 0.5f, 0.3f });
+            vinoxCreateQuad(playerPos.x, playerPos.y, 50.0f, 50.0f, 0, (vec4) { 0.1f, 0.6f, 0.5f, 1.0f });
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);
