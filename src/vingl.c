@@ -163,7 +163,7 @@ static int createBuffer() {
 int vinoxInit() {
     
     if (vinoxCompileShader(&program) == -1) {
-        printf("Failed to compile ShaderProgram aborting\n");
+        printf("Failed to compile aborting\n");
         return -1;
     }
     glUseProgram(program.shaderID);
