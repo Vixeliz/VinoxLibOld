@@ -83,6 +83,9 @@ int testval;
     /* Make sure no errors are present */
     glGetShaderiv(program->vertexShader, GL_COMPILE_STATUS, &testval);
     if(testval == GL_FALSE) {
+        char infolog[1024];
+        glGetShaderInfoLog(program->vertexShader, 1024, NULL, infolog);
+        printf(infolog);
 	    abort = -1;
 	    printf("The vertex shader failed to compile\n");
     }
