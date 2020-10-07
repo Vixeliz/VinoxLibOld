@@ -15,8 +15,15 @@ static Vertex* createQuad(Vertex* target, float x, float y, float width, float h
 
 /* Global variables in file */
 static ShaderProgram program;
+static ShaderProgram screenProgram;
 static GLuint vao;
 static GLuint vbo;
+
+static GLuint screenVbo;
+static GLuint screenVao;
+
+static GLuint textureColorbuffer;
+static GLuint fbo;
 static uint32_t indexCount = 0;
 static uint32_t vertexCount = 0;
 static uint32_t drawCalls = 0;
@@ -149,54 +156,102 @@ static int createBuffer() {
         offset += 4;
     }
     
-    
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAXVERTEXCOUNT, 
             NULL, GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+            (void*)offsetof(Vertex, position));
+    
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+            (void*)offsetof(Vertex, color));
+    
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+            (void*)offsetof(Vertex, texCoords));
+    
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+            (void*)offsetof(Vertex, texIndex));
 
+    /* Framebuffer buffers */
+    float quadVertices[] = {
+        -1.0f, 1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f,
+        1.0f, -1.0f, 1.0f, 0.0f,
+
+        -1.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, -1.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 1.0f, 1.0f
+    };
+    glGenVertexArraysOES(1, &screenVao);
+    glGenBuffers(1, &screenVbo);
+    glBindVertexArrayOES(screenVao);
+    glBindBuffer(GL_ARRAY_BUFFER, screenVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 
+            (void*)(2 * sizeof(float)));
+
+    return 0;
+}
+
+static int createFramebuffer() {
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    glGenTextures(1, &textureColorbuffer);
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        printf("Framebuffer failure!\n");
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return 0;
 }
 
 int vinoxInit() {
     
+    glEnable(GL_DEPTH_TEST);
+    program.type = 0;
     if (vinoxCompileShader(&program) == -1) {
-        printf("Failed to compile aborting\n");
+        printf("Failed to compile world shader aborting\n");
         return -1;
     }
-    glUseProgram(program.shaderID);
 
+    screenProgram.type = 1;
+    if (vinoxCompileShader(&screenProgram) == -1) {
+        printf("Failed to compile world shader aborting\n");
+        return -1;
+    }
+
+    glUseProgram(program.shaderID);
     unsigned int containerTex = vinoxCreateTexture("container.jpg");
-    unsigned int containerTex2 = vinoxCreateTexture("container.jpg");
+    //unsigned int containerTex2 = vinoxCreateTexture("container.jpg");
     unsigned int loc = glGetUniformLocation(program.shaderID, "uTextures");
     int samplers[2] = { 0, 1 };
     glUniform1iv(loc, 2, samplers);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, containerTex2);
+    glBindTexture(GL_TEXTURE_2D, containerTex);
 
     createBuffer();
 
-    /* Set up our vertex pointers so we can send our positions and such
-     * dynamically */
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-            (void*)offsetof(Vertex, position));
-    glEnableVertexAttribArray(0);
-    
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-            (void*)offsetof(Vertex, color));
-    glEnableVertexAttribArray(1);
-    
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-            (void*)offsetof(Vertex, texCoords));
-    glEnableVertexAttribArray(2);
-    
-    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-            (void*)offsetof(Vertex, texIndex));
-    glEnableVertexAttribArray(3);
+    glUseProgram(screenProgram.shaderID);
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    unsigned int loc2 = glGetUniformLocation(screenProgram.shaderID, "screenTexture");
+    glUniform1i(loc2, 1);
+
+    createFramebuffer();
 
     return 0;
 }
@@ -205,14 +260,17 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
     buffer = vertices;
     indexCount = 0;
     vertexCount = 0;
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, width, height);
 
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glUseProgram(program.shaderID);
+    
     mat4 viewprojection = GLM_MAT4_IDENTITY_INIT;
     calculateCameraMatrix(viewprojection, &camera, width, height);
     glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, viewprojection[0]);
-    
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 int vinoxCreateQuad(float x, float y, float width, float height, float textureID, vec4 color) {
@@ -239,7 +297,39 @@ int vinoxCreateQuad(float x, float y, float width, float height, float textureID
 
 void vinoxEndDrawing() {
     
+    /* Bind VAO extension */
+    PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
+    PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
+    PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
+    PFNGLISVERTEXARRAYOESPROC glIsVertexArrayOES;
+    glGenVertexArraysOES = 
+    (PFNGLGENVERTEXARRAYSOESPROC)
+    eglGetProcAddress("glGenVertexArraysOES");
+    
+    glBindVertexArrayOES = 
+    (PFNGLBINDVERTEXARRAYOESPROC)
+    eglGetProcAddress("glBindVertexArrayOES");
+    
+    glDeleteVertexArraysOES =
+    (PFNGLDELETEVERTEXARRAYSOESPROC)
+    eglGetProcAddress("glDeleteVertexArraysOES");
+    
+    glIsVertexArrayOES = 
+    (PFNGLISVERTEXARRAYOESPROC)
+    eglGetProcAddress("glIsVertexArrayOES");
+    
     drawBatch();
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDisable(GL_DEPTH_TEST);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glUseProgram(screenProgram.shaderID);
+    glActiveTexture(2);
+    glBindVertexArrayOES(textureColorbuffer);
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
 
     currentDrawCall = 0;
     lastDrawCall = 0;

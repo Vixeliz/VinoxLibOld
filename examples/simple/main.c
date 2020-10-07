@@ -2,6 +2,8 @@
 #include <GLFW/glfw3.h>
 #include <vinox/vinox.h>
 
+#define PLAYERCOLOR (vec4) { 0.1f, 0.6f, 0.5f, 1.0f }
+
 /* Global variables in file */
 static float deltaTime = 0.0f;
 static float lastFrame = 0.0f;
@@ -52,7 +54,7 @@ int main(void) {
     }
 
     Camera camera;
-    camera.scale = 2.0f;
+    camera.scale = 1.0f;
     camera.rotation = 0.0f;
 
     while (!glfwWindowShouldClose(window)) {
@@ -82,10 +84,10 @@ int main(void) {
         vinoxBeginDrawing(camera, width, height);
            for (int y = 0; y < 100; y++) {
             for (int x = 0; x < 100; x++) {
-                vinoxCreateQuad(x * 10.0f, y * 10.0f, 10.0f, 10.0f, 1, WHITE);
+                vinoxCreateQuad(x * 10.0f, y * 10.0f, 10.0f, 10.0f, 0, WHITE);
             }   
         }
-            vinoxCreateQuad(playerPos.x, playerPos.y, 50.0f, 50.0f, 0, (vec4) { 0.1f, 0.6f, 0.5f, 1.0f });
+            vinoxCreateQuad(playerPos.x, playerPos.y, 50.0f, 50.0f, 0, PLAYERCOLOR);
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);

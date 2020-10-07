@@ -1,5 +1,6 @@
 Features:
 * [ ] Limit fps
+* [ ] Possibly simple collision detection
 * [ ] Function for updating in a fixed time(like units fixedtimeupdate function)?
 * [ ] Audio(miniaudio)
 * [X] Dynamically split up draw calls if the amount of vertices is too large that way we don't segfault
@@ -21,7 +22,8 @@ Clean Up:
     3) [ ] Use cglm types
     4) [ ] Split up functions more
     5) [ ] More files
-    6) [X] Seperate example from lib(the example should compile seperatly and be able to use a .a file for the library)
+    6) [ ] Shaders in files
+    7) [X] Seperate example from lib(the example should compile seperatly and be able to use a .a file for the library)
 * [ ] Documentation
     1) [ ] Have better comments in the code
     2) [ ] Have a structure file for how the code is layed out(although should explain itself)
