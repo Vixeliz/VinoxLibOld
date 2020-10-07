@@ -59,6 +59,18 @@ int main(void) {
         int width, height;
 
         processInput(window);
+    
+        if (playerPos.x < 0)
+            playerPos.x = 0;
+
+        if (playerPos.x > 1000 - 50)
+            playerPos.x = 1000 - 50;
+        
+        if (playerPos.y < 0)
+            playerPos.y = 0;
+        
+        if (playerPos.y > 1000 - 50)
+            playerPos.y = 1000 - 50;
 
         glfwGetFramebufferSize(window, &width, &height);
         
