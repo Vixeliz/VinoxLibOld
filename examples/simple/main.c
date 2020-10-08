@@ -62,7 +62,7 @@ int main(void) {
 
     Camera camera;
     camera.scale = 1.0f;
-    camera.rotation = 45.0f;
+    camera.rotation = 0.0f;
 
     Texture containerTex;
     Texture smileTex;
