@@ -135,14 +135,19 @@ int vinoxCreateQuad(float x, float y, float width, float height, float textureID
         //Vertex *buffer = vertices;
         drawCalls = vertexCount/(MAXVERTEXCOUNT);
         currentDrawCall = drawCalls;
-         
+        int id = 1;
+        if (textureID == 0)
+            id = 1;
+        else
+            id = textureID;
+
         if ((int)((vertexCount += 100)/(MAXVERTEXCOUNT)) > currentDrawCall) {
             drawBatch();
             memset(&vinGLState.buffer.vertices[0], 0, sizeof(vinGLState.buffer.vertices));
             buffer = vinGLState.buffer.vertices;
         }
 
-        buffer = createQuad(buffer, x, y, width, height, textureID, color);
+        buffer = createQuad(buffer, x, y, width, height, id, color);
         indexCount += 6;
 
         lastDrawCall = currentDrawCall;
@@ -197,30 +202,32 @@ int vinoxEnd() {
 
 Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
         float textureID, vec4 color) {
-    glActiveTexture(GL_TEXTURE0 + textureID + 1);   
-    glBindTexture(GL_TEXTURE_2D, textureID + 1);
+    
+    glActiveTexture(GL_TEXTURE0 + textureID);   
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    
     glm_vec3_copy((vec3) {x, y, 0.0f }, target->position);
     glm_vec4_copy(color, target->color);
     glm_vec2_copy((vec2) { 0.0f, 0.0f }, target->texCoords);
-    target->texIndex = textureID;
+    target->texIndex = textureID - 1;
     target++;
 
     glm_vec3_copy((vec3) {x + width, y, 0.0f }, target->position);
     glm_vec4_copy(color, target->color);
     glm_vec2_copy((vec2) { 1.0f, 0.0f }, target->texCoords);
-    target->texIndex = textureID;
+    target->texIndex = textureID - 1;
     target++;
 
     glm_vec3_copy((vec3) {x + width, y + height, 0.0f }, target->position);
     glm_vec4_copy(color, target->color);
     glm_vec2_copy((vec2) { 1.0f, 1.0f }, target->texCoords);
-    target->texIndex = textureID;
+    target->texIndex = textureID - 1;
     target++;
 
     glm_vec3_copy((vec3) {x, y + height, 0.0f }, target->position);
     glm_vec4_copy(color, target->color);
     glm_vec2_copy((vec2) { 0.0f, 1.0f }, target->texCoords);
-    target->texIndex = textureID;
+    target->texIndex = textureID - 1;
     target++;
 
     vertexCount += 4;

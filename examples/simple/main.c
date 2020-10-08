@@ -103,9 +103,9 @@ int main(void) {
             for (int x = 0; x < 100; x++) {
                 int id = 0;
                 if ((x + y) % 2 == 0)
-                    id = containerTex.id - 1;
+                    id = containerTex.id;
                 else if ((x + y) % 2 == 1)
-                    id = smileTex.id - 1;
+                    id = smileTex.id;
                 
                 vinoxCreateQuad(x * 10.0f, y * 10.0f, 10.0f, 10.0f, id, WHITE);
             }   
