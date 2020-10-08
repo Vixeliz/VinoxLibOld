@@ -2,6 +2,12 @@
 #include <GLFW/glfw3.h>
 #include <vinox/vinox.h>
 
+typedef struct {
+    float x;
+    float y;
+} Vector2;
+
+
 /* Structures */
 typedef struct {
     Vector2 pos;
@@ -192,7 +198,8 @@ int main(void) {
     }
 
     Camera camera;
-    camera.position = (Vector2) { 0.0f, 0.0f };
+    camera.x = 0.0f;
+    camera.y = 0.0f;
     camera.scale = 1.0f;
     camera.rotation = 0.0f;
 
@@ -224,8 +231,8 @@ int main(void) {
 
         glfwGetFramebufferSize(window, &width, &height);
         
-        camera.origin.x = 0;
-        camera.origin.y = 0;
+        camera.offsetX = 0;
+        camera.offsetY = 0;
 
         vinoxBeginDrawing(camera, width, height);
         vinoxCreateQuad(0.0f, 0.0f, 15, 1080, 0, WHITE);
