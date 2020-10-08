@@ -5,6 +5,9 @@
 #include <GLES2/gl2ext.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+#define RAYMATH_IMPLEMENTATION
+#include "raymath.h"
 #include "vingl.h"
 #include "camera.h"
 #include "buffer.h"
@@ -13,7 +16,7 @@
 
 /* Functions for the file */
 static Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
-        float textureID, vec4 color);
+        float textureID, Vector4 color);
 
 /* Global variables in file */
 typedef struct {
@@ -122,12 +125,11 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(program.shaderID);
     
-    mat4 viewprojection = GLM_MAT4_IDENTITY_INIT;
-    vinoxCameraMatrix(viewprojection, &camera, width, height);
-    glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, viewprojection[0]);
+    Matrix viewprojection = vinoxCameraMatrix(&camera, width, height);
+    glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(viewprojection)[0]);
 }
 
-int vinoxCreateQuad(float x, float y, float width, float height, float textureID, vec4 color) {
+int vinoxCreateQuad(float x, float y, float width, float height, float textureID, Vector4 color) {
         
         //TODO: figure out how to draw when we start the new drawCall
         //IDEA: set buffer to vertices after we push the vertices array
@@ -201,34 +203,35 @@ int vinoxEnd() {
 }
 
 Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
-        float textureID, vec4 color) {
+        float textureID, Vector4 color) {
     
     glActiveTexture(GL_TEXTURE0 + textureID);   
     glBindTexture(GL_TEXTURE_2D, textureID);
-    
-    glm_vec3_copy((vec3) {x, y, 0.0f }, target->position);
-    glm_vec4_copy(color, target->color);
-    glm_vec2_copy((vec2) { 0.0f, 0.0f }, target->texCoords);
+
+    target->position = (Vector3) { x, y, 0.0f };
+    target->color = color;
+    target->texCoords = (Vector2) { 0.0f, 0.0f };
     target->texIndex = textureID - 1;
     target++;
 
-    glm_vec3_copy((vec3) {x + width, y, 0.0f }, target->position);
-    glm_vec4_copy(color, target->color);
-    glm_vec2_copy((vec2) { 1.0f, 0.0f }, target->texCoords);
+    target->position = (Vector3) { x + width, y, 0.0f };
+    target->color = color;
+    target->texCoords = (Vector2) { 1.0f, 0.0f };
     target->texIndex = textureID - 1;
     target++;
 
-    glm_vec3_copy((vec3) {x + width, y + height, 0.0f }, target->position);
-    glm_vec4_copy(color, target->color);
-    glm_vec2_copy((vec2) { 1.0f, 1.0f }, target->texCoords);
+    target->position = (Vector3) { x + width, y + height, 0.0f };
+    target->color = color;
+    target->texCoords = (Vector2) { 1.0f, 1.0f };
     target->texIndex = textureID - 1;
     target++;
 
-    glm_vec3_copy((vec3) {x, y + height, 0.0f }, target->position);
-    glm_vec4_copy(color, target->color);
-    glm_vec2_copy((vec2) { 0.0f, 1.0f }, target->texCoords);
+    target->position = (Vector3) { x, y + height, 0.0f };
+    target->color = color;
+    target->texCoords = (Vector2) { 0.0f, 1.0f };
     target->texIndex = textureID - 1;
     target++;
+
 
     vertexCount += 4;
     return target;

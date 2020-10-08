@@ -4,14 +4,12 @@
 #include <vinox/camera.h>
 #include <vinox/texture.h>
 #include <vinox/sound.h>
+#include <stdbool.h>
+#include <stdio.h>
 
-#define PLAYERCOLOR (vec4) { 0.0f, 0.0f, 1.0f, 0.5f }
-#define RED (vec4) { 1.0f, 0.0f, 0.0f, 1.0f }
 
-typedef struct {
-    float x;
-    float y;
-} Vector2;
+#define PLAYERCOLOR (Vector4) { 0.0f, 0.0f, 1.0f, 0.5f }
+#define RED (Vector4) { 1.0f, 0.0f, 0.0f, 1.0f }
 
 /* Global variables in file */
 static float deltaTime = 0.0f;
@@ -64,7 +62,7 @@ int main(void) {
 
     Camera camera;
     camera.scale = 1.0f;
-    camera.rotation = 0.0f;
+    camera.rotation = 45.0f;
 
     Texture containerTex;
     Texture smileTex;

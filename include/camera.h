@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <cglm/cglm.h>
+#include "raymath.h"
 
 typedef struct {
     float rotation;
@@ -10,6 +10,6 @@ typedef struct {
     int offsetX, offsetY;
 } Camera;
 
-int vinoxCameraMatrix(mat4 viewproj, Camera *camera, int width, int height);
+Matrix vinoxCameraMatrix(Camera *camera, int width, int height);
 
 #endif

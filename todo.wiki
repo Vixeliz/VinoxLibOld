@@ -19,7 +19,6 @@ Clean Up:
 * [O] Modularize
     1) [X] Seperate all opengl code to other files and functions
     2) [X] Create structures for certain types such as rectangles and camera
-    3) [ ] Use cglm types
     4) [X] Split up functions more
     5) [X] More files
     6) [ ] Shaders in files

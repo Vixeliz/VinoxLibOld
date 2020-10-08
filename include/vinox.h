@@ -4,6 +4,6 @@
 #include "shader.h"
 #include "vingl.h"
 
-#define WHITE (vec4) { 1.0f, 1.0f, 1.0f, 1.0f }
+#define WHITE (Vector4) { 1.0f, 1.0f, 1.0f, 1.0f }
 
 #endif

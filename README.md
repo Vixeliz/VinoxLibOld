@@ -20,7 +20,6 @@ Dependencies
 ------------
 * GLES2(With vao extension; however, always willing to have it be optional if I get around to it)
 * EGL
-* CGLM(will have option for static lib soon)
 * glfw(optional for examples)
 
 Current Limitations

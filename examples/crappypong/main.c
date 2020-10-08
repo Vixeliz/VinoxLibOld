@@ -1,12 +1,8 @@
 #define GLFW_NO_INCLUDE
 #include <GLFW/glfw3.h>
 #include <vinox/vinox.h>
-
-typedef struct {
-    float x;
-    float y;
-} Vector2;
-
+#include <stdio.h>
+#include <stdbool.h>
 
 /* Structures */
 typedef struct {
@@ -237,8 +233,8 @@ int main(void) {
         vinoxBeginDrawing(camera, width, height);
         vinoxCreateQuad(0.0f, 0.0f, 15, 1080, 0, WHITE);
         vinoxCreateQuad(1920.0f - 15, 0.0f, 15, 1080, 0, WHITE);
-        vinoxCreateQuad(paddle[0].pos.x, paddle[0].pos.y, paddle[0].size.x, paddle[0].size.y, 0, (vec4) { 0.1f, 0.6f, 0.5f, 1.0f });
-        vinoxCreateQuad(paddle[1].pos.x, paddle[1].pos.y, paddle[1].size.x, paddle[1].size.y, 0, (vec4) { 0.1f, 0.6f, 0.5f, 1.0f });
+        vinoxCreateQuad(paddle[0].pos.x, paddle[0].pos.y, paddle[0].size.x, paddle[0].size.y, 0, (Vector4) { 0.1f, 0.6f, 0.5f, 1.0f });
+        vinoxCreateQuad(paddle[1].pos.x, paddle[1].pos.y, paddle[1].size.x, paddle[1].size.y, 0, (Vector4) { 0.1f, 0.6f, 0.5f, 1.0f });
         vinoxCreateQuad(ball.pos.x, ball.pos.y, ball.size.x, ball.size.y, 0, WHITE);
         vinoxEndDrawing();
 

@@ -1,29 +1,33 @@
 #include "camera.h"
 
-int vinoxCameraMatrix(mat4 viewproj, Camera *camera, int width, int height) {
+Matrix vinoxCameraMatrix(Camera *camera, int width, int height) {
     /* Camera transformations */
-    mat4 projection = GLM_MAT4_IDENTITY_INIT;
-    mat4 view = GLM_MAT4_IDENTITY_INIT;
-    glm_ortho(0.0f, width, height, 0.0f, -1.0f, 1.0f, projection);
-        
+    Matrix projection = MatrixIdentity();
+    Matrix view = MatrixIdentity();
+    Matrix viewproj = MatrixIdentity();
+    Matrix ortho = MatrixOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
+    projection = MatrixMultiply(projection, ortho);
+
     /* Camera origin */
-    mat4 position = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(position, (vec3) { camera->offsetX, camera->offsetY, 0.0f });
+    Matrix origin = MatrixTranslate(camera->offsetX, camera->offsetY, 0.0f);
+    view = MatrixMultiply(origin, view);
+
         
     /* Camera rotation */
-    glm_rotate(position, glm_rad(camera->rotation), (vec3) { 0.0f, 0.0f, 1.0f });
-        
+    Matrix rotate = MatrixIdentity();
+    Vector3 axis = (Vector3) { 0.0f, 0.0f, 1.0f };
+    rotate = MatrixRotate(Vector3Normalize(axis), camera->rotation*DEG2RAD);
+    view = MatrixMultiply(rotate, view);    
+    
     /* Camera zoom */
-    glm_scale(position, (vec3) { camera->scale, camera->scale, 1.0f });
+    Matrix scale = MatrixScale(camera->scale, camera->scale, 1.0f);
+    view = MatrixMultiply(scale, view);
         
     /* Camera position */
-    vec3 camPosition = { -camera->x, -camera->y, 0.0f };
-    glm_translate(position, camPosition);
-        
-        
-    //glm_mat4_mul(position, rotation, view);
-    glm_mat4_copy(position, view);
-    glm_mat4_mul(projection, view, viewproj);
+    Matrix position = MatrixTranslate(-camera->x, -camera->y, 0.0f);
+    view = MatrixMultiply(position, view);
+     
+    viewproj = MatrixMultiply(view, projection);
     
-    return 0;
+    return viewproj;
 }
