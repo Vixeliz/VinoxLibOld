@@ -2,11 +2,7 @@
 #define VINGL_H
 
 #include <cglm/cglm.h>
-
-typedef struct {
-    float x;
-    float y;
-} Vector2;
+#include "camera.h"
 
 typedef struct {
     vec3 position;
@@ -14,13 +10,6 @@ typedef struct {
     vec2 texCoords;
     float texIndex;
 } Vertex;
-
-typedef struct {
-    float rotation;
-    float scale;
-    Vector2 position;
-    Vector2 origin;
-} Camera;
 
 int vinoxInit(int width, int height);
 void vinoxBeginDrawing(Camera camera, int width, int height);

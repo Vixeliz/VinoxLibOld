@@ -5,6 +5,11 @@
 #define PLAYERCOLOR (vec4) { 0.0f, 0.0f, 1.0f, 0.5f }
 #define RED (vec4) { 1.0f, 0.0f, 0.0f, 1.0f }
 
+typedef struct {
+    float x;
+    float y;
+} Vector2;
+
 /* Global variables in file */
 static float deltaTime = 0.0f;
 static float lastFrame = 0.0f;
@@ -77,10 +82,10 @@ int main(void) {
 
         glfwGetFramebufferSize(window, &width, &height);
         
-        camera.position.x = playerPos.x;
-        camera.position.y = playerPos.y;
-        camera.origin.x = width/2 - 50.0f;
-        camera.origin.y = height/2 - 50.0f;
+        camera.x = playerPos.x;
+        camera.y = playerPos.y;
+        camera.offsetX = width/2 - 50.0f;
+        camera.offsetY = height/2 - 50.0f;
 
         vinoxBeginDrawing(camera, width, height);
            for (int y = 0; y < 100; y++) {

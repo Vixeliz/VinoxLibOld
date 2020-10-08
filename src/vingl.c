@@ -4,47 +4,42 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <stdio.h>
+#include <string.h>
 #include "vingl.h"
+#include "camera.h"
+#include "buffer.h"
+#include "texture.h"
 #include "shader.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 /* Functions for the file */
 static Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
         float textureID, vec4 color);
 
 /* Global variables in file */
+typedef struct {
+    Buffer buffer;
+    FrameBuffer frameBuffer;
+    ShaderProgram program;
+    ShaderProgram screenProgram;
+} vinState;
+
 static ShaderProgram program;
 static ShaderProgram screenProgram;
-static GLuint vao;
-static GLuint vbo;
-
-static GLuint screenVbo;
-static GLuint screenVao;
-
-static GLuint textureColorbuffer;
-static GLuint fbo;
+static vinState vinGLState = {0};
 static uint32_t indexCount = 0;
 static uint32_t vertexCount = 0;
 static uint32_t drawCalls = 0;
-#define MAXQUADCOUNT 20000
-#define MAXVERTEXCOUNT MAXQUADCOUNT * 4
-#define INDICESCOUNT MAXQUADCOUNT * 6
-static Vertex vertices[MAXVERTEXCOUNT];
-static Vertex* buffer = vertices;
+static Vertex* buffer = vinGLState.buffer.vertices;
 static int currentDrawCall = 0;
 static int lastDrawCall = 0;
-/*const char *getGLError(GLenum err) {
-    switch (err) {
-        case GL_NO_ERROR:   return "No error";
-        case GL_INVALID_ENUM:   return "Invalid name";
-        case GL_INVALID_VALUE:  return "Invalid value";
-        case GL_STACK_OVERFLOW_KHR: return "Stack overflow";
-        case GL_STACK_UNDERFLOW_KHR: return "Stack underflow";
-        case GL_OUT_OF_MEMORY:  return "Out of mem";
-        default:    return "Unkown error";
-    }
-}*/
+
+static int vinoxBeginTexture() {
+    return 0;
+}
+
+static int vinoxEndTexture() {
+    return 0;
+}
 
 static int drawBatch() {
     
@@ -69,162 +64,12 @@ static int drawBatch() {
     (PFNGLISVERTEXARRAYOESPROC)
     eglGetProcAddress("glIsVertexArrayOES");
     
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vertices[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, vinGLState.buffer.vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vinGLState.buffer.vertices[0]);
         
-    glBindVertexArrayOES(vao);
+    glBindVertexArrayOES(vinGLState.buffer.vao);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 
-    return 0;
-}
-
-static int calculateCameraMatrix(mat4 viewprojection, Camera *camera, int width, int height) {
-
-    /* Camera transformations */
-    mat4 projection = GLM_MAT4_IDENTITY_INIT;
-    mat4 view = GLM_MAT4_IDENTITY_INIT;
-    glm_ortho(0.0f, width, height, 0.0f, -1.0f, 1.0f, projection);
-        
-    /* Camera origin */
-    mat4 position = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(position, (vec3) { camera->origin.x, camera->origin.y, 0.0f });
-        
-    /* Camera rotation */
-    glm_rotate(position, glm_rad(camera->rotation), (vec3) { 0.0f, 0.0f, 1.0f });
-        
-    /* Camera zoom */
-    glm_scale(position, (vec3) { camera->scale, camera->scale, 1.0f });
-        
-    /* Camera position */
-    vec3 camPosition = { -camera->position.x, -camera->position.y, 0.0f };
-    glm_translate(position, camPosition);
-        
-        
-    //glm_mat4_mul(position, rotation, view);
-    glm_mat4_copy(position, view);
-    glm_mat4_mul(projection, view, viewprojection);
-    
-    return 0;
-}
-
-static int createBuffer() {
-
-    /* Bind VAO extension */
-    PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
-    PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
-    PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
-    PFNGLISVERTEXARRAYOESPROC glIsVertexArrayOES;
-    glGenVertexArraysOES = 
-    (PFNGLGENVERTEXARRAYSOESPROC)
-    eglGetProcAddress("glGenVertexArraysOES");
-    
-    glBindVertexArrayOES = 
-    (PFNGLBINDVERTEXARRAYOESPROC)
-    eglGetProcAddress("glBindVertexArrayOES");
-    
-    glDeleteVertexArraysOES =
-    (PFNGLDELETEVERTEXARRAYSOESPROC)
-    eglGetProcAddress("glDeleteVertexArraysOES");
-    
-    glIsVertexArrayOES = 
-    (PFNGLISVERTEXARRAYOESPROC)
-    eglGetProcAddress("glIsVertexArrayOES");
-    
-    glGenVertexArraysOES(1, &vao);
-
-    glGenBuffers(1, &vbo);
-
-    GLuint ebo;
-    glGenBuffers(1, &ebo);
-    glBindVertexArrayOES(vao);
-
-    
-
-    /* This preallocates our max indices for every draw call */
-    uint32_t indices[INDICESCOUNT];
-    uint32_t offset = 0;
-    
-    for (size_t i = 0; i < INDICESCOUNT; i += 6) {
-        indices[i + 0] = 0 + offset;
-        indices[i + 1] = 1 + offset;
-        indices[i + 2] = 2 + offset;
-        
-        indices[i + 3] = 2 + offset;
-        indices[i + 4] = 3 + offset;
-        indices[i + 5] = 0 + offset;
-        
-        offset += 4;
-    }
-    
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAXVERTEXCOUNT, 
-            NULL, GL_DYNAMIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-            (void*)offsetof(Vertex, position));
-    
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-            (void*)offsetof(Vertex, color));
-    
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-            (void*)offsetof(Vertex, texCoords));
-    
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-            (void*)offsetof(Vertex, texIndex));
-
-    /* Framebuffer buffers */
-    float quadVertices[] = {
-        -1.0f, 1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f,
-        1.0f, -1.0f, 1.0f, 0.0f,
-
-        -1.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, -1.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 1.0f, 1.0f
-    };
-    glGenVertexArraysOES(1, &screenVao);
-    glGenBuffers(1, &screenVbo);
-    glBindVertexArrayOES(screenVao);
-    glBindBuffer(GL_ARRAY_BUFFER, screenVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 
-            (void*)(2 * sizeof(float)));
-
-    return 0;
-}
-static int redrawFramebuffer(int width, int height) {
-    glActiveTexture(GL_TEXTURE0 + 2);
-    glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
-    glActiveTexture(GL_TEXTURE0 + 1);
-    return 0;
-}
-
-static int createFramebuffer(int width, int height) {
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    
-    glGenTextures(1, &textureColorbuffer);
-
-    redrawFramebuffer(width, height);
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        printf("Framebuffer failure!\n");
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return 0;
 }
 
@@ -246,34 +91,36 @@ int vinoxInit(int width, int height) {
     }
 
     glUseProgram(program.shaderID);
-    unsigned int containerTex = vinoxCreateTexture("container.jpg");
-    //unsigned int containerTex2 = vinoxCreateTexture("container.jpg");
+    Texture containerTex;
+    containerTex.id = vinoxLoadTexture("container.jpg", &containerTex);
     unsigned int loc = glGetUniformLocation(program.shaderID, "uTextures");
     int samplers[2] = { 0, 1 };
     glUniform1iv(loc, 2, samplers);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, containerTex);
+    glBindTexture(GL_TEXTURE_2D, containerTex.id);
 
-    createBuffer();
+    vinoxCreateBuffer(&vinGLState.buffer);
 
     glUseProgram(screenProgram.shaderID);
 
     /* Set the screen texture to our framebuffer texture in shader */
     unsigned int loc2 = glGetUniformLocation(screenProgram.shaderID, "screenTexture");
-    glUniform1i(loc2, GL_TEXTURE0 + 2);
+    glUniform1i(loc2, 1);
 
-    createFramebuffer(width, height);
+    vinoxCreateFramebuffer(&vinGLState.frameBuffer, width, height);
 
     return 0;
 }
 
 void vinoxBeginDrawing(Camera camera, int width, int height) {
-    buffer = vertices;
+    buffer = vinGLState.buffer.vertices;
     indexCount = 0;
     vertexCount = 0;
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, vinGLState.frameBuffer.fbo);
     glEnable(GL_DEPTH_TEST);
-    redrawFramebuffer(width, height);
+    vinoxResizeFramebuffer(&vinGLState.frameBuffer, width, height);
     glViewport(0, 0, width, height);
 
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -281,7 +128,7 @@ void vinoxBeginDrawing(Camera camera, int width, int height) {
     glUseProgram(program.shaderID);
     
     mat4 viewprojection = GLM_MAT4_IDENTITY_INIT;
-    calculateCameraMatrix(viewprojection, &camera, width, height);
+    vinoxCameraMatrix(viewprojection, &camera, width, height);
     glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, viewprojection[0]);
 }
 
@@ -296,8 +143,8 @@ int vinoxCreateQuad(float x, float y, float width, float height, float textureID
          
         if ((int)((vertexCount += 100)/(MAXVERTEXCOUNT)) > currentDrawCall) {
             drawBatch();
-            memset(&vertices[0], 0, sizeof(vertices));
-            buffer = vertices;
+            memset(&vinGLState.buffer.vertices[0], 0, sizeof(vinGLState.buffer.vertices));
+            buffer = vinGLState.buffer.vertices;
         }
 
         buffer = createQuad(buffer, x, y, width, height, textureID, color);
@@ -338,8 +185,8 @@ void vinoxEndDrawing() {
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(screenProgram.shaderID);
     glActiveTexture(GL_TEXTURE0 + 2);
-    glBindVertexArrayOES(textureColorbuffer);
-    glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+    glBindVertexArrayOES(vinGLState.frameBuffer.textureColorbuffer);
+    glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.textureColorbuffer);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
 
@@ -351,27 +198,6 @@ void vinoxEndDrawing() {
 int vinoxEnd() {
 
     return 0;
-}
-
-unsigned int vinoxCreateTexture(const char* path) {
-
-    int w, h, c;
-    /* Load the texture we should error check here */
-    unsigned char *data = stbi_load(path, &w, &h, &c, 0);
-    
-    /* Generate the GLtexture and free the texture after we are done */
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(data);
-    
-    return textureID;
 }
 
 Vertex* createQuad(Vertex* target, float x, float y, float width, float height,

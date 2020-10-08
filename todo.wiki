@@ -7,23 +7,23 @@ Features:
 * [ ] allow for drawing a part of a texture(this should be easy with texcoords in createQuad)
 * [X] Render stuff to a texture useful for certain things
 * [X] Framebuffer so we can actually do stuff like transparency
-* [.] Performance
+* [o] Performance
     * [ ] Batch together all geometry
     * [ ] Only render a batch if it has changed
     * [ ] split up position, coords/textureid, and colors into seperate vbos so we only have to update one at a time
     * [X] Good default value for MAXQUADS
-    * [ ] Batch type to make it easier to organize things
+    * [X] Batch type to make it easier to organize things
     * [X] Instead of over complicating and using an array of arrays just use one array(vertex) detect if it will overfill if so render then clear it
 
 Clean Up:
-* [o] Modularize
+* [O] Modularize
     1) [X] Seperate all opengl code to other files and functions
     2) [X] Create structures for certain types such as rectangles and camera
     3) [ ] Use cglm types
-    4) [ ] Split up functions more
-    5) [ ] More files
+    4) [X] Split up functions more
+    5) [X] More files
     6) [ ] Shaders in files
     7) [X] Seperate example from lib(the example should compile seperatly and be able to use a .a file for the library)
-* [ ] Documentation
-    1) [ ] Have better comments in the code
-    2) [ ] Have a structure file for how the code is layed out(although should explain itself)
+* [X] Documentation
+    1) [X] Have better comments in the code
+    2) [X] Have a structure file for how the code is layed out(although should explain itself)
