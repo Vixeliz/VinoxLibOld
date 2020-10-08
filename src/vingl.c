@@ -203,11 +203,13 @@ static int createBuffer() {
     return 0;
 }
 static int redrawFramebuffer(int width, int height) {
+    glActiveTexture(GL_TEXTURE0 + 2);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+    glActiveTexture(GL_TEXTURE0 + 1);
     return 0;
 }
 
@@ -249,17 +251,16 @@ int vinoxInit(int width, int height) {
     unsigned int loc = glGetUniformLocation(program.shaderID, "uTextures");
     int samplers[2] = { 0, 1 };
     glUniform1iv(loc, 2, samplers);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, containerTex);
 
     createBuffer();
 
     glUseProgram(screenProgram.shaderID);
 
+    /* Set the screen texture to our framebuffer texture in shader */
     unsigned int loc2 = glGetUniformLocation(screenProgram.shaderID, "screenTexture");
-    glUniform1i(loc2, 1);
+    glUniform1i(loc2, GL_TEXTURE0 + 2);
 
     createFramebuffer(width, height);
 
@@ -336,7 +337,7 @@ void vinoxEndDrawing() {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(screenProgram.shaderID);
-    glActiveTexture(2);
+    glActiveTexture(GL_TEXTURE0 + 2);
     glBindVertexArrayOES(textureColorbuffer);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
     glDrawArrays(GL_TRIANGLES, 0, 6);
