@@ -90,26 +90,30 @@ int vinoxInit(int width, int height) {
         return -1;
     }
 
-    glUseProgram(program.shaderID);
-    Texture containerTex;
-    containerTex.id = vinoxLoadTexture("container.jpg", &containerTex);
-    unsigned int loc = glGetUniformLocation(program.shaderID, "uTextures");
-    int samplers[2] = { 0, 1 };
-    glUniform1iv(loc, 2, samplers);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, containerTex.id);
-
     vinoxCreateBuffer(&vinGLState.buffer);
 
     glUseProgram(screenProgram.shaderID);
-
-    /* Set the screen texture to our framebuffer texture in shader */
-    unsigned int loc2 = glGetUniformLocation(screenProgram.shaderID, "screenTexture");
-    glUniform1i(loc2, 1);
-
     vinoxCreateFramebuffer(&vinGLState.frameBuffer, width, height);
+    /* Set the screen texture to our framebuffer texture in shader */
+    unsigned int loc = glGetUniformLocation(screenProgram.shaderID, "screenTexture");
+    glUniform1i(loc, 1);
+    printf("Framebuffer Texture ID: %i\n", vinGLState.frameBuffer.textureColorbuffer);
+    
+    glUseProgram(program.shaderID);
+    Texture containerTex;
+    Texture containerTex2;
+    vinoxLoadTexture("container.jpg", &containerTex);
+    vinoxLoadTexture("container.jpg", &containerTex2);
+    if (containerTex.id == -1)
+        printf("Failed to load test texture!\n");
+    
+    printf("Texture ID: %i\n", containerTex.id);
+    printf("Texture2 ID: %i\n", containerTex2.id);
+    unsigned int loc2 = glGetUniformLocation(program.shaderID, "uTextures");
+    int samplers[3] = { 0, 2, 3 }; // The first slot is set to 0 just to fill it
+                                   // It is reserved for the framebuffer texture
+    glUniform1iv(loc2, 3, samplers);
+    glBindTexture(GL_TEXTURE_2D, containerTex.id);
 
     return 0;
 }
@@ -184,8 +188,8 @@ void vinoxEndDrawing() {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(screenProgram.shaderID);
-    glActiveTexture(GL_TEXTURE0 + 2);
-    glBindVertexArrayOES(vinGLState.frameBuffer.textureColorbuffer);
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindVertexArrayOES(vinGLState.frameBuffer.vao);
     glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.textureColorbuffer);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 

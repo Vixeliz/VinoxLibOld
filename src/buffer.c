@@ -80,13 +80,12 @@ int vinoxCreateBuffer(Buffer *buffer) {
 }
 
 int vinoxResizeFramebuffer(FrameBuffer *frameBuffer, int width, int height) {
-    //glActiveTexture(GL_TEXTURE0 + 2);
+    glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, frameBuffer->textureColorbuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->textureColorbuffer, 0);
-    //glActiveTexture(GL_TEXTURE0 + 1);
     return 0;
 }
 
@@ -128,8 +127,8 @@ int vinoxCreateFramebuffer(FrameBuffer *frameBuffer, int width, int height) {
     glGenFramebuffers(1, &frameBuffer->fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
     
+    glActiveTexture(GL_TEXTURE0 + 1);
     glGenTextures(1, &frameBuffer->textureColorbuffer);
-
     vinoxResizeFramebuffer(frameBuffer, width, height);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
