@@ -5,8 +5,8 @@ Features:
 * [ ] Audio(miniaudio)
 * [X] Dynamically split up draw calls if the amount of vertices is too large that way we don't segfault
 * [ ] allow for drawing a part of a texture(this should be easy with texcoords in createQuad)
-* [ ] Render stuff to a texture useful for certain things
-* [ ] Framebuffer so we can actually do stuff like transparency
+* [X] Render stuff to a texture useful for certain things
+* [X] Framebuffer so we can actually do stuff like transparency
 * [.] Performance
     * [ ] Batch together all geometry
     * [ ] Only render a batch if it has changed

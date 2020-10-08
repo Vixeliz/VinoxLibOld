@@ -2,7 +2,7 @@ CFLAGS = -Wall -g
 
 INCLUDES = -Iinclude -Iexternal
 
-LIBS = -lvinox -lGLESv2 -lEGL -lcglm -lSDL2
+LIBS = -lvinox -lGLESv2 -lEGL -lSDL2
 
 SRCS = main.c
 

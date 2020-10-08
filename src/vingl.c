@@ -229,6 +229,8 @@ static int createFramebuffer(int width, int height) {
 int vinoxInit(int width, int height) {
     
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     program.type = 0;
     if (vinoxCompileShader(&program) == -1) {
         printf("Failed to compile world shader aborting\n");
@@ -247,6 +249,8 @@ int vinoxInit(int width, int height) {
     unsigned int loc = glGetUniformLocation(program.shaderID, "uTextures");
     int samplers[2] = { 0, 1 };
     glUniform1iv(loc, 2, samplers);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, containerTex);
 
