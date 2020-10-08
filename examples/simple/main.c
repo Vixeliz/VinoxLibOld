@@ -3,6 +3,7 @@
 #include <vinox/vinox.h>
 #include <vinox/camera.h>
 #include <vinox/texture.h>
+#include <vinox/sound.h>
 
 #define PLAYERCOLOR (vec4) { 0.0f, 0.0f, 1.0f, 0.5f }
 #define RED (vec4) { 1.0f, 0.0f, 0.0f, 1.0f }
@@ -66,7 +67,12 @@ int main(void) {
     camera.rotation = 0.0f;
 
     Texture containerTex;
+    Texture smileTex;
     vinoxLoadTexture("test.jpg", &containerTex);
+    vinoxLoadTexture("awesomeface.png", &smileTex);
+
+    if(vinoxPlaySound("~/test.mp3") == -1)
+        printf("Sound failed to play!\n");
 
     while (!glfwWindowShouldClose(window)) {
         int width, height;
@@ -95,7 +101,13 @@ int main(void) {
         vinoxBeginDrawing(camera, width, height);
            for (int y = 0; y < 100; y++) {
             for (int x = 0; x < 100; x++) {
-                vinoxCreateQuad(x * 10.0f, y * 10.0f, 10.0f, 10.0f, containerTex.id - 1, WHITE);
+                int id = 0;
+                if ((x + y) % 2 == 0)
+                    id = containerTex.id - 1;
+                else if ((x + y) % 2 == 1)
+                    id = smileTex.id - 1;
+                
+                vinoxCreateQuad(x * 10.0f, y * 10.0f, 10.0f, 10.0f, id, WHITE);
             }   
         }
             vinoxCreateQuad(playerPos.x, playerPos.y, 50.0f, 50.0f, 0, PLAYERCOLOR);

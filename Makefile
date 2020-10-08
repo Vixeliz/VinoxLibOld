@@ -4,7 +4,7 @@ INCLUDES = -Iinclude -Iexternal
 
 LIBS = -lGLESv2 -lEGL -lcglm
 
-SRCS = src/buffer.c src/camera.c src/texture.c src/shader.c src/vingl.c 
+SRCS = src/sound.c src/buffer.c src/camera.c src/texture.c src/shader.c src/vingl.c 
 
 PREFIX = /usr/local
 
