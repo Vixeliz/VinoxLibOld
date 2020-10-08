@@ -31,6 +31,10 @@ Plans
 * Having an optional single file header library for window/input related things with glfw
 * More types of shapes
 
+Notes
+------
+The examples are coded very poorly. I plan on going back through and cleaning them up but currently I just want to get features in.
+
 Current Limitations
 --------------------
 * No audio
