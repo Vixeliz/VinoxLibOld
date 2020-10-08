@@ -74,7 +74,7 @@ static int compileFragmentShader(ShaderProgram *program) {
         "in vec2 vTexCoord;\n"
         "in float vTexIndex;\n"
         "layout (location = 0) out vec4 FragColor;\n"
-        "uniform sampler2D uTextures[3];\n"
+        "uniform sampler2D uTextures[8];\n"
         "void main()\n"
         "{\n"
         "   int index = int(vTexIndex);\n"

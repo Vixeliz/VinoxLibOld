@@ -100,19 +100,11 @@ int vinoxInit(int width, int height) {
     printf("Framebuffer Texture ID: %i\n", vinGLState.frameBuffer.textureColorbuffer);
     
     glUseProgram(program.shaderID);
-    glActiveTexture(GL_TEXTURE0 + 2);
-    Texture containerTex;
-    Texture containerTex2;
-    vinoxLoadTexture("container.jpg", &containerTex);
-    vinoxLoadTexture("container.jpg", &containerTex2);
     
-    printf("Texture ID: %i\n", containerTex.id);
-    printf("Texture2 ID: %i\n", containerTex2.id);
     unsigned int loc2 = glGetUniformLocation(program.shaderID, "uTextures");
-    int samplers[3] = { 0, 2, 3 }; // The first slot is set to 0 just to fill it
+    int textures[8] = { 0, 2, 3, 4, 5, 6, 7 }; // The first slot is set to 0 just to fill it
                                    // It is reserved for the framebuffer texture
-    glUniform1iv(loc2, 3, samplers);
-    glBindTexture(GL_TEXTURE_2D, containerTex.id);
+    glUniform1iv(loc2, 3, textures);
 
     return 0;
 }
@@ -189,6 +181,7 @@ void vinoxEndDrawing() {
     glUseProgram(screenProgram.shaderID);
     glBindVertexArrayOES(vinGLState.frameBuffer.vao);
     glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.textureColorbuffer);
+    glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.textureColorbuffer);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
 
@@ -204,7 +197,8 @@ int vinoxEnd() {
 
 Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
         float textureID, vec4 color) {
-    
+    glActiveTexture(GL_TEXTURE0 + textureID + 1);   
+    glBindTexture(GL_TEXTURE_2D, textureID + 1);
     glm_vec3_copy((vec3) {x, y, 0.0f }, target->position);
     glm_vec4_copy(color, target->color);
     glm_vec2_copy((vec2) { 0.0f, 0.0f }, target->texCoords);

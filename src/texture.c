@@ -20,7 +20,7 @@ int vinoxLoadTexture(const char* path, Texture *texture) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->width, texture->height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
-    
+
     if(data == NULL)
         printf("Texture(%i) failed to load!\n", texture->id);
     
