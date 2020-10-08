@@ -66,7 +66,7 @@ int main(void) {
     camera.rotation = 0.0f;
 
     Texture containerTex;
-    vinoxLoadTexture("container.jpg", &containerTex);
+    vinoxLoadTexture("test.jpg", &containerTex);
 
     while (!glfwWindowShouldClose(window)) {
         int width, height;
