@@ -100,12 +100,11 @@ int vinoxInit(int width, int height) {
     printf("Framebuffer Texture ID: %i\n", vinGLState.frameBuffer.textureColorbuffer);
     
     glUseProgram(program.shaderID);
+    glActiveTexture(GL_TEXTURE0 + 2);
     Texture containerTex;
     Texture containerTex2;
     vinoxLoadTexture("container.jpg", &containerTex);
     vinoxLoadTexture("container.jpg", &containerTex2);
-    if (containerTex.id == -1)
-        printf("Failed to load test texture!\n");
     
     printf("Texture ID: %i\n", containerTex.id);
     printf("Texture2 ID: %i\n", containerTex2.id);
@@ -188,7 +187,6 @@ void vinoxEndDrawing() {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(screenProgram.shaderID);
-    glActiveTexture(GL_TEXTURE0 + 1);
     glBindVertexArrayOES(vinGLState.frameBuffer.vao);
     glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.textureColorbuffer);
     glDrawArrays(GL_TRIANGLES, 0, 6);

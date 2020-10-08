@@ -8,13 +8,9 @@
 #include "stb_image.h"
 
 int vinoxLoadTexture(const char* path, Texture *texture) {
-    int abort = 0;
     int c;
     /* Load the texture we should error check here */
     unsigned char *data = stbi_load(path, &texture->width, &texture->height, &c, 0);
-    if(data == NULL)
-        abort = -1;
-    
     /* Generate the GLtexture and free the texture after we are done */
     glGenTextures(1, &texture->id);
     glBindTexture(GL_TEXTURE_2D, texture->id);
@@ -24,7 +20,11 @@ int vinoxLoadTexture(const char* path, Texture *texture) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->width, texture->height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
+    
+    if(data == NULL)
+        printf("Texture(%i) failed to load!\n", texture->id);
+    
     stbi_image_free(data);
     
-    return abort;
+    return 0;
 }

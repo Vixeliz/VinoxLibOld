@@ -127,7 +127,6 @@ int vinoxCreateFramebuffer(FrameBuffer *frameBuffer, int width, int height) {
     glGenFramebuffers(1, &frameBuffer->fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
     
-    glActiveTexture(GL_TEXTURE0 + 1);
     glGenTextures(1, &frameBuffer->textureColorbuffer);
     vinoxResizeFramebuffer(frameBuffer, width, height);
 
