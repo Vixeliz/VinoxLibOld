@@ -25,3 +25,6 @@ Clean Up:
 * [X] Documentation
     1) [X] Have better comments in the code
     2) [X] Have a structure file for how the code is layed out(although should explain itself)
+
+Notes:
+* To get an estimate on files that may need to be looked at run 'scc --not-match external --not-match examples --by-file -s complexity'
