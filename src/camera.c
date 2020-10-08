@@ -1,5 +1,7 @@
 #include "camera.h"
 
+/* Just calculates an ortho camera for 2d mapped to pixels so to draw things we
+ * can just use pixel values */
 Matrix vinoxCameraMatrix(Camera *camera, int width, int height) {
     /* Camera transformations */
     Matrix projection = MatrixIdentity();

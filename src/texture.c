@@ -7,6 +7,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+/* Self explanatory loads a texture with stb_image and generates a texture */
 int vinoxLoadTexture(const char* path, Texture *texture) {
     int c;
     /* Load the texture we should error check here */
@@ -21,6 +22,8 @@ int vinoxLoadTexture(const char* path, Texture *texture) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->width, texture->height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
+    /* We check after the fact so a texture is still there and we can run
+     * program but just warn about the fact a texture didn't load */
     if(data == NULL)
         printf("Texture(%i) failed to load!\n", texture->id);
     

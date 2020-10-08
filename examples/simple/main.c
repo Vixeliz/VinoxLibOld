@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 
-#define PLAYERCOLOR (Vector4) { 0.0f, 0.0f, 1.0f, 0.5f }
+#define PLAYERCOLOR (Vector4) { 0.0f, 0.0f, 1.0f, 0.8f }
 #define RED (Vector4) { 1.0f, 0.0f, 0.0f, 1.0f }
 
 /* Global variables in file */

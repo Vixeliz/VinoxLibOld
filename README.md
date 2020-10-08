@@ -1,16 +1,15 @@
 # Vinox
 A simple 2d framework for rendering graphics in a GLESv2 context.
 
-Why?
------
-Mainly for learning GLESv2 more however I also wanted to make a framework like raylib that doesn't
-make assumptions about windowing or input. All functions are purely for rendering and should be called
-inside any GLESv2 context up the the user. For example glfw could be used for desktop or SDL2, etc.
+Heavily inspired by [raylib](https://github.com/raysan5/raylib)
 
-What are the goals?
+What are the goals/Ideas?
 --------------------
-I am primarly making this for gamedev as it is what I enjoy doing; however, I also hope to be able to
-make some tools with it as I would like to make some things like a pixel art editor and a port of sfxr.
+* Try to keep a small managable base that is flexible but not lacking in features.
+* Try to minimize external library dependencies if possible use single header file libraries
+* 2D Only(This is just my personal preference I have no need for 3d and if I do I can just directly call opengl)
+* **Minimize** reliance on dynamic memory allocation
+* Be able to use in any GLES2 context.
 
 Why GLES2?
 ----------
@@ -18,15 +17,21 @@ It is portable and specifically for my use case I wanted a library that worked w
 
 Dependencies
 ------------
-* GLES2(With vao extension; however, always willing to have it be optional if I get around to it)
+* GLES2(With vao extension support; however, always willing to have it be optional if I get around to it)
 * EGL
-* glfw(optional for examples)
+* [glfw](https://github.com/glfw/glfw)(optional for examples)
+
+Plans
+-----
+* Scripting via lua depending on complexity.
+* Golang support
+* Audio
+* Collision
+* Update
+* Having an optional single file header library for window/input related things with glfw
+* More types of shapes
 
 Current Limitations
 --------------------
-* Different types of geometry aren't batched together for example triangles are a seperate batch from quads
-and spheres are a seperate batch from those, etc
 * No audio
-* Texture system is static right now ie can't load your own texture this is simple to fix just hasn't been
-done
 * Optimizing changing data to only when it's changed for example camera

@@ -37,6 +37,8 @@ static int compileVertexShader(ShaderProgram *program) {
         "   vTexCoord = aTexCoord;\n"
         "   vTexIndex = aTexIndex;\n"
         "   gl_Position = projection * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"                               "}\n\0";
+    /* Based off of what type of program we wanted assign one of the two default
+     * shaders */
     const char* currentSource;
     if (program->type == 0) {
         currentSource = vertexSource;
@@ -45,7 +47,8 @@ static int compileVertexShader(ShaderProgram *program) {
     } else {
         printf("No shader type\n");
     }
-
+    
+    /* Compile the shader */
     program->vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(program->vertexShader, 1, &currentSource, NULL);
     glCompileShader(program->vertexShader);
@@ -84,6 +87,9 @@ static int compileFragmentShader(ShaderProgram *program) {
         "   FragColor = vColor;\n"
         "   }\n"
         "}\n\0";
+    
+    /* Based off of what type of program we wanted assign one of the two default
+     * shaders */
     const char* currentSource;
     if (program->type == 0) {
         currentSource = fragmentSource;
@@ -93,6 +99,7 @@ static int compileFragmentShader(ShaderProgram *program) {
         printf("No shader type\n");
     }
 
+    /* Compile the shader */
     program->fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(program->fragmentShader, 1, &currentSource, NULL);
     glCompileShader(program->fragmentShader);
@@ -106,7 +113,8 @@ int testval;
 
     compileVertexShader(program);
     compileFragmentShader(program);
-
+    
+    /* Link the shaders to the given program */
     program->shaderID = glCreateProgram();
     glAttachShader(program->shaderID, program->vertexShader);
     glAttachShader(program->shaderID, program->fragmentShader);

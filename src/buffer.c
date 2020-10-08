@@ -1,6 +1,5 @@
 #define EGL_NO_X11
 #include <EGL/egl.h>
-#define GL_GLEXT_PROTOTYPES 1
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <stdio.h>
@@ -8,13 +7,13 @@
 #include <stdbool.h>
 #include "buffer.h"
 
-int vinoxCreateBuffer(Buffer *buffer) {
+static PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
+static PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
+static PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
 
-    /* Bind VAO extension */
-    PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
-    PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
-    PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
-    PFNGLISVERTEXARRAYOESPROC glIsVertexArrayOES;
+int vinoxCreateBuffer(Buffer *buffer) {
+    
+    /* Load extensions */
     glGenVertexArraysOES = 
     (PFNGLGENVERTEXARRAYSOESPROC)
     eglGetProcAddress("glGenVertexArraysOES");
@@ -26,11 +25,7 @@ int vinoxCreateBuffer(Buffer *buffer) {
     glDeleteVertexArraysOES =
     (PFNGLDELETEVERTEXARRAYSOESPROC)
     eglGetProcAddress("glDeleteVertexArraysOES");
-    
-    glIsVertexArrayOES = 
-    (PFNGLISVERTEXARRAYOESPROC)
-    eglGetProcAddress("glIsVertexArrayOES");
-    
+
     glGenVertexArraysOES(1, &buffer->vao);
 
     glGenBuffers(1, &buffer->vbo);
@@ -55,13 +50,20 @@ int vinoxCreateBuffer(Buffer *buffer) {
         offset += 4;
     }
     
+    /* This binds an area of memory so we can later change that area of memory
+     * dynamically */
     glBindBuffer(GL_ARRAY_BUFFER, buffer->vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MAXVERTEXCOUNT, 
             NULL, GL_DYNAMIC_DRAW);
-
+    
+    /* Indices don't need to have there data changed since they follow a pattern
+     * so we just set it to a static buffer */
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     
+    /* Tell our buffers where to look in the vertices for different types of
+     * data. Since we do everything dynamically we store data in the vertices
+     * including color, texcoords, texindex, and position */
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
             (void*)offsetof(Vertex, position));
@@ -82,6 +84,8 @@ int vinoxCreateBuffer(Buffer *buffer) {
 
 }
 
+/* Originally was in with create framebuffer but we moved it to resize so we can
+ * change the width and height of the texture based off of the window */
 int vinoxResizeFramebuffer(FrameBuffer *frameBuffer, int width, int height) {
     glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, frameBuffer->textureColorbuffer);
@@ -94,17 +98,6 @@ int vinoxResizeFramebuffer(FrameBuffer *frameBuffer, int width, int height) {
 
 int vinoxCreateFramebuffer(FrameBuffer *frameBuffer, int width, int height) {
     
-    PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
-    PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
-    
-    glGenVertexArraysOES = 
-    (PFNGLGENVERTEXARRAYSOESPROC)
-    eglGetProcAddress("glGenVertexArraysOES");
-    
-    glBindVertexArrayOES = 
-    (PFNGLBINDVERTEXARRAYOESPROC)
-    eglGetProcAddress("glBindVertexArrayOES");
-    
     /* Framebuffer buffers */
     float vertices[] = {
         -1.0f, 1.0f,  0.0f, 1.0f,
@@ -116,28 +109,34 @@ int vinoxCreateFramebuffer(FrameBuffer *frameBuffer, int width, int height) {
         1.0f, 1.0f, 1.0f, 1.0f
     };
     
+    /* Same story gen buffers this time a static buffer since we don't need to
+     * change the vertices dynamically */
     glGenVertexArraysOES(1, &frameBuffer->vao);
     glGenBuffers(1, &frameBuffer->vbo);
     glBindVertexArrayOES(frameBuffer->vao);
     glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+    
+    /* Yet again where to look in the vertices for data left being positions
+     * right being texture coords */
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 
             (void*)(2 * sizeof(float)));
 
+    /* This generates the actual framebuffer itself and binds it to the current
+     * one we then generate a texture for the resize function to edit */
     glGenFramebuffers(1, &frameBuffer->fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
     
     glGenTextures(1, &frameBuffer->textureColorbuffer);
     vinoxResizeFramebuffer(frameBuffer, width, height);
 
+    /* Make sure it was actually created */
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         printf("Framebuffer failure!\n");
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return 0;
 }
-
-

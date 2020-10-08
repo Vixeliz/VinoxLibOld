@@ -8,7 +8,6 @@ Features:
 * [X] Render stuff to a texture useful for certain things
 * [X] Framebuffer so we can actually do stuff like transparency
 * [o] Performance
-    * [ ] Batch together all geometry
     * [ ] Only render a batch if it has changed
     * [ ] split up position, coords/textureid, and colors into seperate vbos so we only have to update one at a time
     * [X] Good default value for MAXQUADS
