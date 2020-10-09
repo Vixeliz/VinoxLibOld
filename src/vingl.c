@@ -17,6 +17,7 @@
 static Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
         float textureID, Vector4 color);
 
+static int drawBatch();
 /* Global Area */
 typedef struct {
     Matrix matrix;
@@ -61,6 +62,7 @@ int vinoxBeginTexture(FrameBuffer *frameBuffer) {
 
 int vinoxEndTexture(FrameBuffer *frameBuffer) {
     
+    drawBatch();
     glBindFramebuffer(GL_FRAMEBUFFER, vinGLState.frameBuffer.fbo);
     return 0;
 }

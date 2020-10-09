@@ -106,7 +106,14 @@ int main(void) {
 
         vinoxBeginDrawing(width, height);
            vinoxClear((Vector4){ 0.0f, 0.0f, 0.0f, 1.0f });
-            vinoxBeginCamera(&camera);    
+            //vinoxBeginCamera(&camera);    
+            vinoxBeginTexture(&renderTexture);
+                vinoxClear((Vector4) { 0.2, 0.2, 0.2, 1.0});
+                vinoxCreateQuad(0.0f, 0.0f, 320, 240, 0, RED);
+                //vinoxCreateQuad(320, 0.0f, 320, 240, 0, WHITE);
+                vinoxCreateQuad(0.0f, 240, 320, 240, 0, RED);
+                //vinoxCreateQuad(320, 240, 320, 240, 0, WHITE);
+            vinoxEndTexture(&renderTexture);
             for (int y = 0; y < 100; y++) {
             for (int x = 0; x < 100; x++) {
                 int id = 0;
@@ -118,9 +125,10 @@ int main(void) {
                 vinoxCreateQuad(x * 10.0f, y * 10.0f, 10.0f, 10.0f, id, WHITE);
             }   
         }
+                vinoxCreateQuad(0.0f, 0.0f, 640, 480, renderTexture.texture.id, WHITE);
                 vinoxCreateQuad(playerPos.x, playerPos.y, 50, 50, 0, PLAYERCOLOR);
            vinoxCreateQuad(playerPos.x, playerPos.y, 50, 50, 0, PLAYERCOLOR);
-            vinoxEndCamera();
+            //vinoxEndCamera();
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);
