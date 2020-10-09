@@ -30,7 +30,6 @@ int vinoxCreateBuffer(Buffer *buffer) {
 
     glGenBuffers(1, &buffer->vbo);
 
-    GLuint ebo;
     glGenBuffers(1, &buffer->ebo);
     glBindVertexArrayOES(buffer->vao);
 
@@ -86,17 +85,17 @@ int vinoxCreateBuffer(Buffer *buffer) {
 
 /* Originally was in with create framebuffer but we moved it to resize so we can
  * change the width and height of the texture based off of the window */
-int vinoxResizeFramebuffer(FrameBuffer *frameBuffer, int width, int height) {
-    glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, frameBuffer->textureColorbuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+int vinoxResizeFramebuffer(FrameBuffer *frameBuffer) {
+    glActiveTexture(frameBuffer->texture.id);
+    glBindTexture(GL_TEXTURE_2D, frameBuffer->texture.id);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frameBuffer->texture.width, frameBuffer->texture.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->textureColorbuffer, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBuffer->texture.id, 0);
     return 0;
 }
 
-int vinoxCreateFramebuffer(FrameBuffer *frameBuffer, int width, int height) {
+int vinoxCreateFramebuffer(FrameBuffer *frameBuffer) {
     
     /* Framebuffer buffers */
     float vertices[] = {
@@ -130,8 +129,8 @@ int vinoxCreateFramebuffer(FrameBuffer *frameBuffer, int width, int height) {
     glGenFramebuffers(1, &frameBuffer->fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
     
-    glGenTextures(1, &frameBuffer->textureColorbuffer);
-    vinoxResizeFramebuffer(frameBuffer, width, height);
+    glGenTextures(1, &frameBuffer->texture.id);
+    vinoxResizeFramebuffer(frameBuffer);
 
     /* Make sure it was actually created */
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)

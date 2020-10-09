@@ -7,9 +7,12 @@ typedef struct {
 } Texture;
 
 typedef struct {
-    unsigned int id;
+    GLuint vao;
+    GLuint vbo;
+    GLuint fbo;
     Texture texture;
-} RenderTexture;
+} FrameBuffer;
+
 
 int vinoxLoadTexture(const char* filepath, Texture *texture);
 

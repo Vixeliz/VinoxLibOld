@@ -2,6 +2,7 @@
 #define BUFFER_H
 
 #include "vingl.h"
+#include "texture.h"
 
 #define MAXQUADCOUNT 8000
 #define MAXVERTEXCOUNT MAXQUADCOUNT * 4
@@ -14,14 +15,7 @@ typedef struct {
     Vertex vertices[MAXVERTEXCOUNT];
 } Buffer;
 
-typedef struct {
-    GLuint vao;
-    GLuint vbo;
-    GLuint fbo;
-    GLuint textureColorbuffer;
-} FrameBuffer;
-
 int vinoxCreateBuffer(Buffer *buffer);
-int vinoxCreateFramebuffer(FrameBuffer *frameBuffer, int width, int height);
-int vinoxResizeFramebuffer(FrameBuffer *frameBuffer, int width, int height);
+int vinoxCreateFramebuffer(FrameBuffer *frameBuffer);
+int vinoxResizeFramebuffer(FrameBuffer *frameBuffer);
 #endif

@@ -4,11 +4,14 @@
 #include <vinox/camera.h>
 #include <vinox/texture.h>
 #include <vinox/sound.h>
+#include <vinox/buffer.h>
 #include <stdbool.h>
 #include <stdio.h>
 
+#define max(a, b) ((a)>(b)? (a) : (b))
+#define min(a, b) ((a)<(b)? (a) : (b))
 
-#define PLAYERCOLOR (Vector4) { 0.0f, 0.0f, 1.0f, 0.8f }
+#define PLAYERCOLOR (Vector4) { 0.0f, 1.0f, 0.0f, 1.0f }
 #define RED (Vector4) { 1.0f, 0.0f, 0.0f, 1.0f }
 
 /* Global variables in file */
@@ -61,13 +64,17 @@ int main(void) {
     }
 
     Camera camera;
-    camera.scale = 1.0f;
+    camera.scale = 4.0f;
     camera.rotation = 0.0f;
 
+    FrameBuffer renderTexture;
+    renderTexture.texture.width = 640;
+    renderTexture.texture.height = 480;
     Texture containerTex;
     Texture smileTex;
     vinoxLoadTexture("test.jpg", &containerTex);
     vinoxLoadTexture("awesomeface.png", &smileTex);
+    vinoxCreateFramebuffer(&renderTexture);
 
     if(vinoxPlaySound("~/test.mp3") == -1)
         printf("Sound failed to play!\n");
@@ -90,14 +97,17 @@ int main(void) {
             playerPos.y = 1000 - 50;
 
         glfwGetFramebufferSize(window, &width, &height);
+        float scale = min((float)width/640, (float)height/480);
         
         camera.x = playerPos.x;
         camera.y = playerPos.y;
         camera.offsetX = width/2 - 50.0f;
         camera.offsetY = height/2 - 50.0f;
 
-        vinoxBeginDrawing(camera, width, height);
-           for (int y = 0; y < 100; y++) {
+        vinoxBeginDrawing(width, height);
+           vinoxClear((Vector4){ 0.0f, 0.0f, 0.0f, 1.0f });
+            vinoxBeginCamera(&camera);    
+            for (int y = 0; y < 100; y++) {
             for (int x = 0; x < 100; x++) {
                 int id = 0;
                 if ((x + y) % 2 == 0)
@@ -108,7 +118,9 @@ int main(void) {
                 vinoxCreateQuad(x * 10.0f, y * 10.0f, 10.0f, 10.0f, id, WHITE);
             }   
         }
-            vinoxCreateQuad(playerPos.x, playerPos.y, 50.0f, 50.0f, 0, PLAYERCOLOR);
+                vinoxCreateQuad(playerPos.x, playerPos.y, 50, 50, 0, PLAYERCOLOR);
+           vinoxCreateQuad(playerPos.x, playerPos.y, 50, 50, 0, PLAYERCOLOR);
+            vinoxEndCamera();
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);

@@ -230,7 +230,8 @@ int main(void) {
         camera.offsetX = 0;
         camera.offsetY = 0;
 
-        vinoxBeginDrawing(camera, width, height);
+        vinoxBeginDrawing(width, height);
+        vinoxClear((Vector4) { 0.2f, 0.2f, 0.2f, 1.0f });
         vinoxCreateQuad(0.0f, 0.0f, 15, 1080, 0, WHITE);
         vinoxCreateQuad(1920.0f - 15, 0.0f, 15, 1080, 0, WHITE);
         vinoxCreateQuad(paddle[0].pos.x, paddle[0].pos.y, paddle[0].size.x, paddle[0].size.y, 0, (Vector4) { 0.1f, 0.6f, 0.5f, 1.0f });

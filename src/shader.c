@@ -66,7 +66,7 @@ static int compileFragmentShader(ShaderProgram *program) {
         "uniform sampler2D screenTexture;\n"
         "void main()\n"
         "{\n"
-        "   vec3 col = texture(screenTexture, TexCoords).rgb;\n"
+        "   vec3 col = 1.0 - texture(screenTexture, TexCoords).rgb;\n"
         "   FragColor = vec4(col, 1.0);\n"
         "}\n";
 
