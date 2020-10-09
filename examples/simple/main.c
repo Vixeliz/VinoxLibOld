@@ -64,7 +64,7 @@ int main(void) {
     }
 
     Camera camera;
-    camera.scale = 4.0f;
+    camera.scale = 3.5f;
     camera.rotation = 0.0f;
 
     FrameBuffer renderTexture;
@@ -99,20 +99,20 @@ int main(void) {
         glfwGetFramebufferSize(window, &width, &height);
         float scale = min((float)width/640, (float)height/480);
         
-        camera.x = playerPos.x;
-        camera.y = playerPos.y;
-        camera.offsetX = width/2 - 50.0f;
-        camera.offsetY = height/2 - 50.0f;
+        camera.x = playerPos.x + 25.0f;
+        camera.y = playerPos.y + 25.0f;
+        camera.offsetX = width/2;
+        camera.offsetY = height/2;
 
         vinoxBeginDrawing(width, height);
            vinoxClear((Vector4){ 0.0f, 0.0f, 0.0f, 1.0f });
-            //vinoxBeginCamera(&camera);    
+            vinoxBeginCamera(&camera);    
             vinoxBeginTexture(&renderTexture);
                 vinoxClear((Vector4) { 0.2, 0.2, 0.2, 1.0});
-                vinoxCreateQuad(0.0f, 0.0f, 320, 240, 0, RED);
-                //vinoxCreateQuad(320, 0.0f, 320, 240, 0, WHITE);
+                vinoxCreateQuad(320, 0.0f, 320, 240, 0, RED);
+                vinoxCreateQuad(0, 0.0f, 320, 240, 0, WHITE);
                 vinoxCreateQuad(0.0f, 240, 320, 240, 0, RED);
-                //vinoxCreateQuad(320, 240, 320, 240, 0, WHITE);
+                vinoxCreateQuad(320, 240, 320, 240, 0, WHITE);
             vinoxEndTexture(&renderTexture);
             for (int y = 0; y < 100; y++) {
             for (int x = 0; x < 100; x++) {
@@ -125,10 +125,10 @@ int main(void) {
                 vinoxCreateQuad(x * 10.0f, y * 10.0f, 10.0f, 10.0f, id, WHITE);
             }   
         }
-                vinoxCreateQuad(0.0f, 0.0f, 640, 480, renderTexture.texture.id, WHITE);
+                vinoxCreateQuad(300.0f, 100.0f, 640, 480, renderTexture.texture.id, WHITE);
                 vinoxCreateQuad(playerPos.x, playerPos.y, 50, 50, 0, PLAYERCOLOR);
            vinoxCreateQuad(playerPos.x, playerPos.y, 50, 50, 0, PLAYERCOLOR);
-            //vinoxEndCamera();
+            vinoxEndCamera();
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);
