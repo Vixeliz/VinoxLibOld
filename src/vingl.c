@@ -16,8 +16,8 @@
 /* Functions for the file */
 static Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
         float textureID, Vector4 color);
-
 static int drawBatch();
+
 /* Global Area */
 typedef struct {
     Matrix matrix;
@@ -33,25 +33,29 @@ static PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
 static PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
 static PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
 
-/* Some variables our two shaderPrograms, a state and counters basically */
+/* Some variables our two shaderPrograms and our state */
 static ShaderProgram program;
 static ShaderProgram screenProgram;
-static Matrix defaultMatrix;
 static vinState vinGLState = {0};
+static Matrix defaultMatrix;
+static Vertex* buffer = vinGLState.buffer.vertices;
+static unsigned int loc;
+
+/* Counters */
 static uint32_t indexCount = 0;
 static uint32_t vertexCount = 0;
 static uint32_t drawCalls = 0;
-static Vertex* buffer = vinGLState.buffer.vertices;
 static int currentDrawCall = 0;
 static int lastDrawCall = 0;
-static unsigned int loc;
 
+/* Clears color so we can do this for render textures as well */
 int vinoxClear(Vector4 color) {
     glClearColor(color.x, color.y, color.z, color.w);
     glClear(GL_COLOR_BUFFER_BIT);
     return 0;
 }
 
+/* Begin a framebuffer and bind the current framebuffer to that one */
 int vinoxBeginTexture(FrameBuffer *frameBuffer) {
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
     vinoxResizeFramebuffer(frameBuffer);
@@ -59,7 +63,8 @@ int vinoxBeginTexture(FrameBuffer *frameBuffer) {
     return 0;
 }
 
-
+/* Render all quads to the framebuffer and bind back to the default framebuffer
+ * */
 int vinoxEndTexture(FrameBuffer *frameBuffer) {
     
     //Matrix lastMatrix = vinGLState.matrix;
@@ -74,6 +79,7 @@ int vinoxEndTexture(FrameBuffer *frameBuffer) {
     return 0;
 }
 
+/* Begins using a user camera by changing the states camera */
 int vinoxBeginCamera(Camera *camera) {
     Matrix viewprojection = vinoxCameraMatrix(camera, vinGLState.width, vinGLState.height);
     vinGLState.matrix = viewprojection;
@@ -82,6 +88,7 @@ int vinoxBeginCamera(Camera *camera) {
     return 0;
 }
 
+/* When we are done set the camera back to the default camera */
 int vinoxEndCamera() {
     vinGLState.matrix = defaultMatrix;
     return 0;
@@ -136,24 +143,33 @@ int vinoxInit(int width, int height) {
         return -1;
     }
     
+    /* Don't bind anything to texture slot 0 */
+    glActiveTexture(GL_TEXTURE0);   
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    /* Create our buffers */
     vinoxCreateBuffer(&vinGLState.buffer);
+    
     glUseProgram(screenProgram.shaderID);
     vinGLState.frameBuffer.texture.width = width;
     vinGLState.frameBuffer.texture.height = height;
     vinoxCreateFramebuffer(&vinGLState.frameBuffer);
 
+    /* Set up a default camera */
     defaultMatrix = MatrixOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
     vinGLState.matrix = defaultMatrix;
+    
     /* Set the screen texture to our framebuffer texture in shader */
     loc = glGetUniformLocation(screenProgram.shaderID, "screenTexture");
     glUniform1i(loc, vinGLState.frameBuffer.texture.id);
     printf("Framebuffer Texture ID: %i\n", vinGLState.frameBuffer.texture.id);
     
+    /* Assign texture ids to the array inside of the shader program */
     glUseProgram(program.shaderID);
     
     unsigned int loc2 = glGetUniformLocation(program.shaderID, "uTextures");
-    int textures[8] = { 0, 2, 3, 4, 5, 6, 7 }; /* The first slot is set to 0 as it is reserved for non textured quads */
-    glUniform1iv(loc2, 3, textures);
+    int textures[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    glUniform1iv(loc2, 8, textures);
 
     return 0;
 }
@@ -161,6 +177,7 @@ int vinoxInit(int width, int height) {
 /* This is called to actually intialize things that need to be done every frame
  * such as clearing the color */
 void vinoxBeginDrawing(int width, int height) {
+    
     /* Reassign the buffer pointer to the vertices for editing */
     buffer = vinGLState.buffer.vertices;
     vinGLState.width = width;
@@ -175,17 +192,20 @@ void vinoxBeginDrawing(int width, int height) {
     /* Now just stuff to get ready for rendering and our matrix to be able to
      * provide a camera */
     glViewport(0, 0, width, height);
-    //vinoxClear((Vector4) { 0.1f, 0.1f, 0.1f, 1.0f });
     glUseProgram(program.shaderID);
     
+    /* Set the default matrix if begin camera is called after this it will
+     * overide it */
     defaultMatrix = MatrixOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
     vinGLState.matrix = defaultMatrix;
     glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
+
 }
 
 /* Finishes rendering to the framebuffer and makes sure all batches are drawn */
 void vinoxEndDrawing() {
     
+    /* Make sure we finish drawing the current batch */
     drawBatch();
     
     /* Switch back to drawing to the context */
@@ -194,7 +214,7 @@ void vinoxEndDrawing() {
     /* Draw our framebuffer texture to the screen */
     glUseProgram(screenProgram.shaderID);
     glBindVertexArrayOES(vinGLState.frameBuffer.vao);
-    glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.texture.id);
+    glActiveTexture(vinGLState.frameBuffer.texture.id);
     glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.texture.id);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     
@@ -217,16 +237,10 @@ int vinoxEnd() {
 /* This is called by the user just is basically a wrapper around the createQuad
  * in vingl however has some checking for when to split up a batch */
 int vinoxCreateQuad(float x, float y, float width, float height, float textureID, Vector4 color) {
+        
         /* Detect how many drawcalls are needed for vertex count */
         drawCalls = vertexCount/(MAXVERTEXCOUNT);
         currentDrawCall = drawCalls;
-        /* This is just so if textureID is set to 0 it still shows up as color
-         * */
-        int id = 1;
-        if (textureID == 0)
-            id = 1;
-        else
-            id = textureID;
         
         /* Detect if adding any more vertices will cause a new batch to be made
          * if so drawThe current batch and reset vertices and buffer */
@@ -237,7 +251,7 @@ int vinoxCreateQuad(float x, float y, float width, float height, float textureID
         }
         
         /* Assiging vertex data to our vertices array */
-        buffer = createQuad(buffer, x, y, width, height, id, color);
+        buffer = createQuad(buffer, x, y, width, height, textureID, color);
         indexCount += 6;
 
         lastDrawCall = currentDrawCall;
@@ -251,33 +265,40 @@ Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
         float textureID, Vector4 color) {
     
     /* Set the active texture and bind it to whichever id is passed */
+    /* This is kind of jank but I haven't fixed it yet so here it will stay for
+     * now */
+    if (!(textureID == 0)) {
     glActiveTexture(GL_TEXTURE0 + textureID);   
     glBindTexture(GL_TEXTURE_2D, textureID);
+    }else{
+    glActiveTexture(GL_TEXTURE0 + vinGLState.frameBuffer.texture.id);
+    glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.texture.id);
+    }
 
     /* Sets all of the needed data for current vertex then moves onto the next
      * 3*/
     target->position = (Vector3) { x, y, 0.0f };
     target->color = color;
     target->texCoords = (Vector2) { 0.0f, 0.0f };
-    target->texIndex = textureID - 1;
+    target->texIndex = textureID;
     target++;
 
     target->position = (Vector3) { x + width, y, 0.0f };
     target->color = color;
     target->texCoords = (Vector2) { 1.0f, 0.0f };
-    target->texIndex = textureID - 1;
+    target->texIndex = textureID;
     target++;
 
     target->position = (Vector3) { x + width, y + height, 0.0f };
     target->color = color;
     target->texCoords = (Vector2) { 1.0f, 1.0f };
-    target->texIndex = textureID - 1;
+    target->texIndex = textureID;
     target++;
 
     target->position = (Vector3) { x, y + height, 0.0f };
     target->color = color;
     target->texCoords = (Vector2) { 0.0f, 1.0f };
-    target->texIndex = textureID - 1;
+    target->texIndex = textureID;
     target++;
 
 

@@ -14,6 +14,7 @@ int vinoxLoadTexture(const char* path, Texture *texture) {
     unsigned char *data = stbi_load(path, &texture->width, &texture->height, &c, 0);
     /* Generate the GLtexture and free the texture after we are done */
     glGenTextures(1, &texture->id);
+    glActiveTexture(texture->id);
     glBindTexture(GL_TEXTURE_2D, texture->id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

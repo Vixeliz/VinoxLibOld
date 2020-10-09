@@ -127,7 +127,6 @@ int main(void) {
         }
                 vinoxCreateQuad(300.0f, 100.0f, 640, 480, renderTexture.texture.id, WHITE);
                 vinoxCreateQuad(playerPos.x, playerPos.y, 50, 50, 0, PLAYERCOLOR);
-           vinoxCreateQuad(playerPos.x, playerPos.y, 50, 50, 0, PLAYERCOLOR);
             vinoxEndCamera();
         vinoxEndDrawing();
 
