@@ -67,14 +67,6 @@ int main(void) {
     camera.scale = 1.0f;
     camera.rotation = 0.0f;
 
-    Camera camera2;
-    camera2.scale = 1.0f;
-    camera2.rotation = 0.0f;
-    camera2.offsetX = 0.0f;
-    camera2.offsetY = 0.0f;
-    camera2.x = 10.0f;
-    camera2.y = 10.0f;
-
     FrameBuffer renderTexture;
     renderTexture.texture.width = 640;
     renderTexture.texture.height = 480;
@@ -109,35 +101,29 @@ int main(void) {
         
         camera.x = playerPos.x;
         camera.y = playerPos.y;
-        camera.offsetX = width/2;
-        camera.offsetY = height/2;
+        camera.offsetX = 640/2;
+        camera.offsetY = 480/2;
 
         vinoxBeginDrawing(width, height);
-           vinoxClear((Vector4){ 0.0f, 0.0f, 0.0f, 1.0f });
+           vinoxClear((Vector4){ 0.2f, 0.2f, 0.2f, 1.0f });
             vinoxBeginTexture(&renderTexture);
-                vinoxClear((Vector4) { 0.2, 0.2, 0.2, 1.0});
-                vinoxBeginCamera(&camera2);
-                vinoxCreateQuad(160, 120, 320, 240, smileTex.id, RED, 180.0f);
-                vinoxCreateQuad(480, 120, 320, 240, 0, WHITE, 180.0f);
-                vinoxCreateQuad(480, 360, 320, 240, 0, RED, 180.0f);
-                vinoxCreateQuad(160, 360, 320, 240, 0, WHITE, 180.0f);
-                vinoxEndCamera();
-            vinoxEndTexture(&renderTexture);
+                vinoxClear((Vector4) { 0.0, 0.0, 0.0, 1.0});
             vinoxBeginCamera(&camera);    
-            for (int y = 0; y < 100; y++) {
-            for (int x = 0; x < 100; x++) {
+            for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 10; x++) {
                 int id = 0;
                 if ((x + y) % 2 == 0)
                     id = containerTex.id;
                 else if ((x + y) % 2 == 1)
                     id = smileTex.id;
                 
-                vinoxCreateQuad((x * 10.0f) + 5.0f, (y * 10.0f) + 5.0f, 10.0f, 10.0f, id, WHITE, 180.0f);
+                vinoxCreateQuad((x * 100.0f) + 50.0f, (y * 100.0f) + 50.0f, 100.0f, 100.0f, id, WHITE, 180.0f);
             }   
         }
-                vinoxCreateQuad(320.0f, 640.0f, 640, 480, renderTexture.texture.id, WHITE, 0.0f);
                 vinoxCreateQuad(playerPos.x, playerPos.y, 50, 50, 0, PLAYERCOLOR, 45.0f);
             vinoxEndCamera();
+            vinoxEndTexture(&renderTexture);
+                vinoxCreateQuad(width/2, height/2, width, -height, renderTexture.texture.id, WHITE, 0.0f);
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);
