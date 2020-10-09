@@ -10,6 +10,6 @@ typedef struct {
     int offsetX, offsetY;
 } Camera;
 
-Matrix vinoxCameraMatrix(Camera *camera, int width, int height);
+Matrix vinoxCameraMatrix(Camera *camera, Matrix projection);
 
 #endif

@@ -65,7 +65,6 @@ int vinoxBeginTexture(FrameBuffer *frameBuffer) {
     vinGLState.matrix = MatrixOrtho(0, frameBuffer->texture.width, frameBuffer->texture.height, 0, -1.0f, 1.0f);
     glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
     glViewport(0, 0, frameBuffer->texture.width, frameBuffer->texture.height);
-    
     return 0;
 }
 
@@ -82,7 +81,7 @@ int vinoxEndTexture(FrameBuffer *frameBuffer) {
 
 /* Begins using a user camera by changing the states camera */
 int vinoxBeginCamera(Camera *camera) {
-    Matrix viewprojection = vinoxCameraMatrix(camera, vinGLState.width, vinGLState.height);
+    Matrix viewprojection = vinoxCameraMatrix(camera, vinGLState.matrix);
     vinGLState.matrix = viewprojection;
     glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
     
@@ -91,7 +90,8 @@ int vinoxBeginCamera(Camera *camera) {
 
 /* When we are done set the camera back to the default camera */
 int vinoxEndCamera() {
-    vinGLState.matrix = defaultMatrix;
+    //vinGLState.matrix = defaultMatrix;
+    //glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
     return 0;
 }
 

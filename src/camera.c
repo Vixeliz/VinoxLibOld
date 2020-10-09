@@ -2,13 +2,10 @@
 
 /* Just calculates an ortho camera for 2d mapped to pixels so to draw things we
  * can just use pixel values */
-Matrix vinoxCameraMatrix(Camera *camera, int width, int height) {
+Matrix vinoxCameraMatrix(Camera *camera, Matrix projection) {
     /* Camera transformations */
-    Matrix projection = MatrixIdentity();
     Matrix view = MatrixIdentity();
     Matrix viewproj = MatrixIdentity();
-    Matrix ortho = MatrixOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
-    projection = MatrixMultiply(projection, ortho);
 
     /* Camera origin */
     Matrix origin = MatrixTranslate(camera->offsetX, camera->offsetY, 0.0f);
