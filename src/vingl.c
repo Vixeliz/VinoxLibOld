@@ -55,10 +55,16 @@ int vinoxClear(Vector4 color) {
     return 0;
 }
 
+static Matrix lastMatrix;
 /* Begin a framebuffer and bind the current framebuffer to that one */
 int vinoxBeginTexture(FrameBuffer *frameBuffer) {
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
     vinoxResizeFramebuffer(frameBuffer);
+    
+    lastMatrix = vinGLState.matrix;
+    vinGLState.matrix = MatrixOrtho(0, frameBuffer->texture.width, frameBuffer->texture.height, 0, -1.0f, 1.0f);
+    glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
+    glViewport(0, 0, frameBuffer->texture.width, frameBuffer->texture.height);
     
     return 0;
 }
@@ -66,11 +72,6 @@ int vinoxBeginTexture(FrameBuffer *frameBuffer) {
 /* Render all quads to the framebuffer and bind back to the default framebuffer
  * */
 int vinoxEndTexture(FrameBuffer *frameBuffer) {
-    
-    Matrix lastMatrix = vinGLState.matrix;
-    vinGLState.matrix = MatrixOrtho(0, frameBuffer->texture.width, frameBuffer->texture.height, 0, -1.0f, 1.0f);
-    glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
-    glViewport(0, 0, frameBuffer->texture.width, frameBuffer->texture.height);
     drawBatch();
     glViewport(0, 0, vinGLState.width, vinGLState.height);
     vinGLState.matrix = lastMatrix;

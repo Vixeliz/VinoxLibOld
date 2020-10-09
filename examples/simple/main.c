@@ -87,14 +87,14 @@ int main(void) {
         if (playerPos.x < 0)
             playerPos.x = 0;
 
-        if (playerPos.x > 1000 - 50)
-            playerPos.x = 1000 - 50;
+        if (playerPos.x > 1000)
+            playerPos.x = 1000;
         
         if (playerPos.y < 0)
             playerPos.y = 0;
         
-        if (playerPos.y > 1000 - 50)
-            playerPos.y = 1000 - 50;
+        if (playerPos.y > 1000)
+            playerPos.y = 1000;
 
         glfwGetFramebufferSize(window, &width, &height);
         float scale = min((float)width/640, (float)height/480);
@@ -125,7 +125,7 @@ int main(void) {
                 vinoxCreateQuad((x * 10.0f) + 5.0f, (y * 10.0f) + 5.0f, 10.0f, 10.0f, id, WHITE, 180.0f);
             }   
         }
-                vinoxCreateQuad(320.0f, 240.0f, 640, 480, renderTexture.texture.id, WHITE, 0.0f);
+                vinoxCreateQuad(320.0f, 640.0f, 640, 480, renderTexture.texture.id, WHITE, 0.0f);
                 vinoxCreateQuad(playerPos.x, playerPos.y, 50, 50, 0, PLAYERCOLOR, 45.0f);
             vinoxEndCamera();
         vinoxEndDrawing();
