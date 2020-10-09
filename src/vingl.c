@@ -62,13 +62,14 @@ int vinoxBeginTexture(FrameBuffer *frameBuffer) {
 
 int vinoxEndTexture(FrameBuffer *frameBuffer) {
     
-    Matrix lastMatrix = vinGLState.matrix;
+    //Matrix lastMatrix = vinGLState.matrix;
     
-    vinGLState.matrix = MatrixOrtho(0, vinGLState.width, vinGLState.height, 0, -1.0f, 1.0f);
-    glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
+    //glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
+    glViewport(0, 0, frameBuffer->texture.width, frameBuffer->texture.height);
     drawBatch();
-    vinGLState.matrix = lastMatrix;
-    glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
+    glViewport(0, 0, vinGLState.width, vinGLState.height);
+    //vinGLState.matrix = lastMatrix;
+    //glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
     glBindFramebuffer(GL_FRAMEBUFFER, vinGLState.frameBuffer.fbo);
     return 0;
 }
