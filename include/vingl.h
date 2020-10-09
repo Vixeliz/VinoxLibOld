@@ -23,6 +23,6 @@ int vinoxEndTexture(FrameBuffer *frameBuffer);
 int vinoxClear(Vector4 color);
 
 unsigned int vinoxCreateTexture(const char* path);
-int vinoxCreateQuad(float x, float y, float width, float height, float textureID, Vector4 color);
+int vinoxCreateQuad(float x, float y, float width, float height, float textureID, Vector4 color, float rotation);
 
 #endif

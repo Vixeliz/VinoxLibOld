@@ -45,8 +45,8 @@ static int checkCollision(Paddle paddle) {
 
     leftP = paddle.pos.x;
     rightP = paddle.pos.x + paddle.size.x;
-    topP = paddle.pos.y;
-    bottomP = paddle.pos.y + paddle.size.y;
+    topP = paddle.pos.y - paddle.size.y/2;
+    bottomP = paddle.pos.y + paddle.size.y/2;
 
     if (leftB > rightP)
         return 0;
@@ -203,7 +203,7 @@ int main(void) {
 
     paddle[0].size = (Vector2) { 25.0f, 150.0f };
     paddle[1].size = (Vector2) { 25.0f, 150.0f };
-    paddle[0].pos = (Vector2) { 25.0f, 0.0f };
+    paddle[0].pos = (Vector2) { 25.0f + paddle[0].size.x, 0.0f };
     paddle[1].pos= (Vector2) { 1920.0f - paddle[1].size.x - 25.0f, 0.0f };
     
     while (!glfwWindowShouldClose(window)) {
@@ -211,17 +211,17 @@ int main(void) {
 
         processInput(window);
         
-        if (!(paddle[0].pos.y <= 1080 - paddle[0].size.y))
-            paddle[0].pos.y = 1080 - paddle[0].size.y;
+        if (!(paddle[0].pos.y <= 1080 - paddle[0].size.y/2))
+            paddle[0].pos.y = 1080 - paddle[0].size.y/2;
 
-        if (!(paddle[0].pos.y >= 0))
-            paddle[0].pos.y = 0;
+        if (!(paddle[0].pos.y >= 0 + paddle[0].size.y/2))
+            paddle[0].pos.y = 0 + paddle[0].size.y/2;
 
-        if (!(paddle[1].pos.y <= 1080 - paddle[1].size.y))
-            paddle[1].pos.y = 1080 - paddle[1].size.y;
+        if (!(paddle[1].pos.y <= 1080 - paddle[1].size.y/2))
+            paddle[1].pos.y = 1080 - paddle[1].size.y/2;
 
-        if (!(paddle[1].pos.y >= 0))
-            paddle[1].pos.y = 0;
+        if (!(paddle[1].pos.y >= 0 + paddle[1].size.y/2))
+            paddle[1].pos.y = 0 + paddle[1].size.y/2;
         
         moveBall();
 
@@ -232,11 +232,11 @@ int main(void) {
 
         vinoxBeginDrawing(width, height);
         vinoxClear((Vector4) { 0.2f, 0.2f, 0.2f, 1.0f });
-        vinoxCreateQuad(0.0f, 0.0f, 15, 1080, 0, WHITE);
-        vinoxCreateQuad(1920.0f - 15, 0.0f, 15, 1080, 0, WHITE);
-        vinoxCreateQuad(paddle[0].pos.x, paddle[0].pos.y, paddle[0].size.x, paddle[0].size.y, 0, (Vector4) { 0.1f, 0.6f, 0.5f, 1.0f });
-        vinoxCreateQuad(paddle[1].pos.x, paddle[1].pos.y, paddle[1].size.x, paddle[1].size.y, 0, (Vector4) { 0.1f, 0.6f, 0.5f, 1.0f });
-        vinoxCreateQuad(ball.pos.x, ball.pos.y, ball.size.x, ball.size.y, 0, WHITE);
+        vinoxCreateQuad(7.0f, 540.0f, 15, 1080, 0, WHITE, 0.0f);
+        vinoxCreateQuad(1920.0f - 7, 540.0f, 15, 1080, 0, WHITE, 0.0f);
+        vinoxCreateQuad(paddle[0].pos.x, paddle[0].pos.y, paddle[0].size.x, paddle[0].size.y, 0, (Vector4) { 0.1f, 0.6f, 0.5f, 1.0f }, 0.0f);
+        vinoxCreateQuad(paddle[1].pos.x, paddle[1].pos.y, paddle[1].size.x, paddle[1].size.y, 0, (Vector4) { 0.1f, 0.6f, 0.5f, 1.0f }, 0.0f);
+        vinoxCreateQuad(ball.pos.x, ball.pos.y, ball.size.x, ball.size.y, 0, WHITE, 0.0f);
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);

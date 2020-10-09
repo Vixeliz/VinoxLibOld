@@ -15,7 +15,7 @@
 
 /* Functions for the file */
 static Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
-        float textureID, Vector4 color);
+        float textureID, Vector4 color, float rotation);
 static int drawBatch();
 
 /* Global Area */
@@ -67,14 +67,14 @@ int vinoxBeginTexture(FrameBuffer *frameBuffer) {
  * */
 int vinoxEndTexture(FrameBuffer *frameBuffer) {
     
-    //Matrix lastMatrix = vinGLState.matrix;
-    
-    //glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
+    Matrix lastMatrix = vinGLState.matrix;
+    vinGLState.matrix = MatrixOrtho(0, frameBuffer->texture.width, frameBuffer->texture.height, 0, -1.0f, 1.0f);
+    glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
     glViewport(0, 0, frameBuffer->texture.width, frameBuffer->texture.height);
     drawBatch();
     glViewport(0, 0, vinGLState.width, vinGLState.height);
-    //vinGLState.matrix = lastMatrix;
-    //glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
+    vinGLState.matrix = lastMatrix;
+    glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
     glBindFramebuffer(GL_FRAMEBUFFER, vinGLState.frameBuffer.fbo);
     return 0;
 }
@@ -106,6 +106,7 @@ static int drawBatch() {
         
     glBindVertexArrayOES(vinGLState.buffer.vao);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+    memset(&vinGLState.buffer.vertices[0], 0, sizeof(vinGLState.buffer.vertices));
 
     return 0;
 }
@@ -236,22 +237,21 @@ int vinoxEnd() {
 
 /* This is called by the user just is basically a wrapper around the createQuad
  * in vingl however has some checking for when to split up a batch */
-int vinoxCreateQuad(float x, float y, float width, float height, float textureID, Vector4 color) {
+int vinoxCreateQuad(float x, float y, float width, float height, float textureID, Vector4 color, float rotation) {
         
         /* Detect how many drawcalls are needed for vertex count */
         drawCalls = vertexCount/(MAXVERTEXCOUNT);
         currentDrawCall = drawCalls;
         
         /* Detect if adding any more vertices will cause a new batch to be made
-         * if so drawThe current batch and reset vertices and buffer */
+         * if so drawThe current batch and reset buffer */
         if ((int)((vertexCount += 100)/(MAXVERTEXCOUNT)) > currentDrawCall) {
             drawBatch();
-            memset(&vinGLState.buffer.vertices[0], 0, sizeof(vinGLState.buffer.vertices));
             buffer = vinGLState.buffer.vertices;
         }
         
         /* Assiging vertex data to our vertices array */
-        buffer = createQuad(buffer, x, y, width, height, textureID, color);
+        buffer = createQuad(buffer, x, y, width, height, textureID, color, rotation);
         indexCount += 6;
 
         lastDrawCall = currentDrawCall;
@@ -262,7 +262,7 @@ int vinoxCreateQuad(float x, float y, float width, float height, float textureID
 /* Function to assign data to each vertex for every quad in the vertices array
  * */
 Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
-        float textureID, Vector4 color) {
+        float textureID, Vector4 color, float rotation) {
     
     /* Set the active texture and bind it to whichever id is passed */
     /* This is kind of jank but I haven't fixed it yet so here it will stay for
@@ -274,28 +274,45 @@ Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
     glActiveTexture(GL_TEXTURE0 + vinGLState.frameBuffer.texture.id);
     glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.texture.id);
     }
+    
+    /* We use matrices to transform the vertices now to make it easier to do so
+     * especially rotating */
+    Matrix transform = MatrixIdentity();
+    Matrix translate = MatrixTranslate(x, y, 0.0f);
+    transform = MatrixMultiply(translate, transform);
+    
+    Vector3 axis = (Vector3) {0.0f, 0.0f, 1.0f};
+    Matrix rotate = MatrixRotate(Vector3Normalize(axis), rotation*DEG2RAD);
+    transform = MatrixMultiply(rotate, transform);
+
+    Matrix scale = MatrixScale(width, height, 1.0f);
+    transform = MatrixMultiply(scale, transform);
 
     /* Sets all of the needed data for current vertex then moves onto the next
      * 3*/
-    target->position = (Vector3) { x, y, 0.0f };
+    Vector3 vertex1 = Vector3Transform((Vector3) { -0.5f, -0.5f, 0.0f }, transform);
+    target->position = (Vector3) { vertex1.x, vertex1.y, 0.0f };
     target->color = color;
     target->texCoords = (Vector2) { 0.0f, 0.0f };
     target->texIndex = textureID;
     target++;
 
-    target->position = (Vector3) { x + width, y, 0.0f };
+    Vector3 vertex2 = Vector3Transform((Vector3) { 0.5f, -0.5f, 0.0f }, transform);
+    target->position = (Vector3) { vertex2.x, vertex2.y, 0.0f };
     target->color = color;
     target->texCoords = (Vector2) { 1.0f, 0.0f };
     target->texIndex = textureID;
     target++;
 
-    target->position = (Vector3) { x + width, y + height, 0.0f };
+    Vector3 vertex3 = Vector3Transform((Vector3) { 0.5f, 0.5f, 0.0f }, transform);
+    target->position = (Vector3) { vertex3.x, vertex3.y, 0.0f };
     target->color = color;
     target->texCoords = (Vector2) { 1.0f, 1.0f };
     target->texIndex = textureID;
     target++;
 
-    target->position = (Vector3) { x, y + height, 0.0f };
+    Vector3 vertex4 = Vector3Transform((Vector3) { -0.5f, 0.5f, 0.0f }, transform);
+    target->position = (Vector3) { vertex4.x, vertex4.y, 0.0f };
     target->color = color;
     target->texCoords = (Vector2) { 0.0f, 1.0f };
     target->texIndex = textureID;

@@ -99,21 +99,21 @@ int main(void) {
         glfwGetFramebufferSize(window, &width, &height);
         float scale = min((float)width/640, (float)height/480);
         
-        camera.x = playerPos.x + 25.0f;
-        camera.y = playerPos.y + 25.0f;
+        camera.x = playerPos.x;
+        camera.y = playerPos.y;
         camera.offsetX = width/2;
         camera.offsetY = height/2;
 
         vinoxBeginDrawing(width, height);
            vinoxClear((Vector4){ 0.0f, 0.0f, 0.0f, 1.0f });
-            vinoxBeginCamera(&camera);    
             vinoxBeginTexture(&renderTexture);
                 vinoxClear((Vector4) { 0.2, 0.2, 0.2, 1.0});
-                vinoxCreateQuad(320, 0.0f, 320, 240, 0, RED);
-                vinoxCreateQuad(0, 0.0f, 320, 240, 0, WHITE);
-                vinoxCreateQuad(0.0f, 240, 320, 240, 0, RED);
-                vinoxCreateQuad(320, 240, 320, 240, 0, WHITE);
+                vinoxCreateQuad(160, 120, 320, 240, smileTex.id, RED, 180.0f);
+                vinoxCreateQuad(480, 120, 320, 240, 0, WHITE, 180.0f);
+                vinoxCreateQuad(480, 360, 320, 240, 0, RED, 180.0f);
+                vinoxCreateQuad(160, 360, 320, 240, 0, WHITE, 180.0f);
             vinoxEndTexture(&renderTexture);
+            vinoxBeginCamera(&camera);    
             for (int y = 0; y < 100; y++) {
             for (int x = 0; x < 100; x++) {
                 int id = 0;
@@ -122,11 +122,11 @@ int main(void) {
                 else if ((x + y) % 2 == 1)
                     id = smileTex.id;
                 
-                vinoxCreateQuad(x * 10.0f, y * 10.0f, 10.0f, 10.0f, id, WHITE);
+                vinoxCreateQuad((x * 10.0f) + 5.0f, (y * 10.0f) + 5.0f, 10.0f, 10.0f, id, WHITE, 180.0f);
             }   
         }
-                vinoxCreateQuad(300.0f, 100.0f, 640, 480, renderTexture.texture.id, WHITE);
-                vinoxCreateQuad(playerPos.x, playerPos.y, 50, 50, 0, PLAYERCOLOR);
+                vinoxCreateQuad(320.0f, 240.0f, 640, 480, renderTexture.texture.id, WHITE, 0.0f);
+                vinoxCreateQuad(playerPos.x, playerPos.y, 50, 50, 0, PLAYERCOLOR, 45.0f);
             vinoxEndCamera();
         vinoxEndDrawing();
 
