@@ -102,6 +102,8 @@ static int drawBatch() {
     
     /* Bind our new vertex buffer to the vbo and send it to the gpu, then
      * attach Vertex array and draw */
+    glActiveTexture(GL_TEXTURE0 + vinGLState.frameBuffer.texture.id);
+    glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.texture.id);
     glBindBuffer(GL_ARRAY_BUFFER, vinGLState.buffer.vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vinGLState.buffer.vertices[0]);
         
@@ -272,8 +274,6 @@ Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
     glActiveTexture(GL_TEXTURE0 + textureID);   
     glBindTexture(GL_TEXTURE_2D, textureID);
     }else{
-    glActiveTexture(GL_TEXTURE0 + vinGLState.frameBuffer.texture.id);
-    glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.texture.id);
     }
     
     /* We use matrices to transform the vertices now to make it easier to do so
