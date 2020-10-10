@@ -11,7 +11,7 @@
 int vinoxLoadTexture(const char* path, Texture *texture) {
     int c;
     /* Load the texture we should error check here */
-    unsigned char *data = stbi_load(path, &texture->width, &texture->height, &c, 0);
+    unsigned char *data = stbi_load(path, &texture->width, &texture->height, &c, STBI_rgb_alpha);
     /* Generate the GLtexture and free the texture after we are done */
     glGenTextures(1, &texture->id);
     glActiveTexture(texture->id);
@@ -20,7 +20,7 @@ int vinoxLoadTexture(const char* path, Texture *texture) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->width, texture->height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     /* We check after the fact so a texture is still there and we can run
