@@ -36,7 +36,8 @@ static int compileVertexShader(ShaderProgram *program) {
         "   vColor = aColor;\n"
         "   vTexCoord = aTexCoord;\n"
         "   vTexIndex = aTexIndex;\n"
-        "   gl_Position = projection * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"                               "}\n\0";
+        "   gl_Position = projection * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "}\n\0";
     /* Based off of what type of program we wanted assign one of the two default
      * shaders */
     const char* currentSource;

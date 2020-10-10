@@ -64,7 +64,7 @@ int main(void) {
     }
 
     Camera camera;
-    camera.scale = 1.0f;
+    camera.scale = 2.0f;
     camera.rotation = 0.0f;
 
     Camera camera2;
@@ -84,8 +84,15 @@ int main(void) {
     vinoxLoadTexture("awesomeface.png", &smileTex);
     vinoxCreateFramebuffer(&renderTexture);
 
-    if(vinoxPlaySound("~/test.mp3") == -1)
-        printf("Sound failed to play!\n");
+    vinoxBeginTexture(&renderTexture);
+        vinoxClear((Vector4) { 0.2, 0.2, 0.2, 1.0});
+        vinoxBeginCamera(&camera2);
+        vinoxCreateQuad(160, 120, 320, 240, smileTex.id, RED, 180.0f);
+        vinoxCreateQuad(480, 120, 320, 240, 0, WHITE, 180.0f);
+        vinoxCreateQuad(480, 360, 320, 240, 0, RED, 180.0f);
+        vinoxCreateQuad(160, 360, 320, 240, 0, WHITE, 180.0f);
+        vinoxEndCamera();
+    vinoxEndTexture(&renderTexture);
 
     while (!glfwWindowShouldClose(window)) {
         int width, height;
@@ -114,15 +121,6 @@ int main(void) {
 
         vinoxBeginDrawing(width, height);
            vinoxClear((Vector4){ 0.0f, 0.0f, 0.0f, 1.0f });
-            vinoxBeginTexture(&renderTexture);
-                vinoxClear((Vector4) { 0.2, 0.2, 0.2, 1.0});
-                vinoxBeginCamera(&camera2);
-                vinoxCreateQuad(160, 120, 320, 240, smileTex.id, RED, 180.0f);
-                vinoxCreateQuad(480, 120, 320, 240, 0, WHITE, 180.0f);
-                vinoxCreateQuad(480, 360, 320, 240, 0, RED, 180.0f);
-                vinoxCreateQuad(160, 360, 320, 240, 0, WHITE, 180.0f);
-                vinoxEndCamera();
-            vinoxEndTexture(&renderTexture);
             vinoxBeginCamera(&camera);    
             for (int y = 0; y < 100; y++) {
             for (int x = 0; x < 100; x++) {
