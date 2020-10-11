@@ -33,9 +33,7 @@ static PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
 static PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
 static PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
 
-/* Some variables our two shaderPrograms and our state */
-static ShaderProgram program;
-static ShaderProgram screenProgram;
+/* Global variables */
 static vinState vinGLState = {0};
 static Matrix defaultMatrix;
 static Vertex* buffer = vinGLState.buffer.vertices;
@@ -63,7 +61,7 @@ int vinoxBeginTexture(FrameBuffer *frameBuffer) {
     
     lastMatrix = vinGLState.matrix;
     vinGLState.matrix = MatrixOrtho(0, frameBuffer->texture.width, frameBuffer->texture.height, 0, -1.0f, 1.0f);
-    glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
+    glUniformMatrix4fv(glGetUniformLocation(vinGLState.program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
     glViewport(0, 0, frameBuffer->texture.width, frameBuffer->texture.height);
     return 0;
 }
@@ -74,7 +72,7 @@ int vinoxEndTexture(FrameBuffer *frameBuffer) {
     drawBatch();
     glViewport(0, 0, vinGLState.width, vinGLState.height);
     vinGLState.matrix = lastMatrix;
-    glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
+    glUniformMatrix4fv(glGetUniformLocation(vinGLState.program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
     glBindFramebuffer(GL_FRAMEBUFFER, vinGLState.frameBuffer.fbo);
     return 0;
 }
@@ -83,15 +81,16 @@ int vinoxEndTexture(FrameBuffer *frameBuffer) {
 int vinoxBeginCamera(Camera *camera) {
     Matrix viewprojection = vinoxCameraMatrix(camera, vinGLState.matrix);
     vinGLState.matrix = viewprojection;
-    glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
+    glUniformMatrix4fv(glGetUniformLocation(vinGLState.program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
     
     return 0;
 }
 
 /* When we are done set the camera back to the default camera */
 int vinoxEndCamera() {
-    //vinGLState.matrix = defaultMatrix;
-    //glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
+    drawBatch();
+    vinGLState.matrix = defaultMatrix;
+    glUniformMatrix4fv(glGetUniformLocation(vinGLState.program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
     return 0;
 }
 
@@ -135,14 +134,14 @@ int vinoxInit(int width, int height) {
     
     /* Compile our two shaderPrograms setting their types (we have one for
      * typical objects and a more basic shader for the framebuffer textures) */
-    program.type = 0;
-    if (vinoxCompileShader(&program) == -1) {
+    vinGLState.program.type = 0;
+    if (vinoxCompileShader(&vinGLState.program) == -1) {
         printf("Failed to compile world shader aborting\n");
         return -1;
     }
 
-    screenProgram.type = 1;
-    if (vinoxCompileShader(&screenProgram) == -1) {
+    vinGLState.screenProgram.type = 1;
+    if (vinoxCompileShader(&vinGLState.screenProgram) == -1) {
         printf("Failed to compile world shader aborting\n");
         return -1;
     }
@@ -154,7 +153,7 @@ int vinoxInit(int width, int height) {
     /* Create our buffers */
     vinoxCreateBuffer(&vinGLState.buffer);
     
-    glUseProgram(screenProgram.shaderID);
+    glUseProgram(vinGLState.screenProgram.shaderID);
     vinGLState.frameBuffer.texture.width = width;
     vinGLState.frameBuffer.texture.height = height;
     vinoxCreateFramebuffer(&vinGLState.frameBuffer);
@@ -164,14 +163,14 @@ int vinoxInit(int width, int height) {
     vinGLState.matrix = defaultMatrix;
     
     /* Set the screen texture to our framebuffer texture in shader */
-    loc = glGetUniformLocation(screenProgram.shaderID, "screenTexture");
+    loc = glGetUniformLocation(vinGLState.screenProgram.shaderID, "screenTexture");
     glUniform1i(loc, vinGLState.frameBuffer.texture.id);
     printf("Framebuffer Texture ID: %i\n", vinGLState.frameBuffer.texture.id);
     
     /* Assign texture ids to the array inside of the shader program */
-    glUseProgram(program.shaderID);
+    glUseProgram(vinGLState.program.shaderID);
     
-    unsigned int loc2 = glGetUniformLocation(program.shaderID, "uTextures");
+    unsigned int loc2 = glGetUniformLocation(vinGLState.program.shaderID, "uTextures");
     int textures[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
     glUniform1iv(loc2, 8, textures);
 
@@ -196,13 +195,13 @@ void vinoxBeginDrawing(int width, int height) {
     /* Now just stuff to get ready for rendering and our matrix to be able to
      * provide a camera */
     glViewport(0, 0, width, height);
-    glUseProgram(program.shaderID);
+    glUseProgram(vinGLState.program.shaderID);
     
     /* Set the default matrix if begin camera is called after this it will
      * overide it */
     defaultMatrix = MatrixOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
     vinGLState.matrix = defaultMatrix;
-    glUniformMatrix4fv(glGetUniformLocation(program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
+    glUniformMatrix4fv(glGetUniformLocation(vinGLState.program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
 
 }
 
@@ -216,7 +215,7 @@ void vinoxEndDrawing() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
     /* Draw our framebuffer texture to the screen */
-    glUseProgram(screenProgram.shaderID);
+    glUseProgram(vinGLState.screenProgram.shaderID);
     glBindVertexArrayOES(vinGLState.frameBuffer.vao);
     glActiveTexture(vinGLState.frameBuffer.texture.id);
     glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.texture.id);
