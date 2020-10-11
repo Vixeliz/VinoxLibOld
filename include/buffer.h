@@ -4,7 +4,7 @@
 #include "vingl.h"
 #include "texture.h"
 
-#define MAXQUADCOUNT 8000
+#define MAXQUADCOUNT 25000
 #define MAXVERTEXCOUNT MAXQUADCOUNT * 4
 #define INDICESCOUNT MAXQUADCOUNT * 6
 

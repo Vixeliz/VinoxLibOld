@@ -96,7 +96,7 @@ int vinoxResizeFramebuffer(FrameBuffer *frameBuffer) {
 }
 
 int vinoxCreateFramebuffer(FrameBuffer *frameBuffer) {
-    
+
     /* Framebuffer buffers */
     float vertices[] = {
         -1.0f, 1.0f,  0.0f, 1.0f,
@@ -131,6 +131,10 @@ int vinoxCreateFramebuffer(FrameBuffer *frameBuffer) {
     
     glGenTextures(1, &frameBuffer->texture.id);
     vinoxResizeFramebuffer(frameBuffer);
+ 
+    /* Check to make sure a scale type has been assigned */
+    if (!(frameBuffer->scaleType == GL_LINEAR) && !(frameBuffer->scaleType == GL_NEAREST))
+        printf("Warning framebuffer: %i has not had a scaletype assigned\n", frameBuffer->texture.id);
 
     /* Make sure it was actually created */
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
