@@ -40,8 +40,3 @@ external/raymath.h is licensed under the following license instead of MIT
 *
 *     3. This notice may not be removed or altered from any source distribution.
 *
-in examples/* the art assets are from learnopengl.com and the breakout example is also from learnopengl.com under the CC BY 4.0 license:
-Breakout is free software: you can redistribute it and/or modify
-it under the terms of the CC BY 4.0 license as published by
-Creative Commons, either version 4 of the License, or (at your
-option) any later version.
