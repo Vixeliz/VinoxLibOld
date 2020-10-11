@@ -8,14 +8,48 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#define SCROLLINCREASE 1
+#define GRAVITY 1400
+
+/* Function */
+static int updatePlayer();
+static int isKeyPressed(GLFWwindow *window, int keycode);
+void processInput(GLFWwindow *window);
+
 /* Global variables in file */
+typedef struct {
+    bool isDead;
+    bool isGrounded;
+    Quad quad;
+    Vector2 velocity;
+    int currentTexture;
+} Dinosaur;
+
+static Texture dinosaurDuckTex;
+static Texture dinosaurTex;
+static Dinosaur dino;
+static int floorLimit;
+static int scrollSpeed;
 static float deltaTime = 0.0f;
 static float lastFrame = 0.0f;
 static const int gameWidth = 256;
 static const int gameHeight = 144;
 
-static int isKeyPressed(GLFWwindow *window, int keycode);
-void processInput(GLFWwindow *window);
+int updatePlayer() {
+    
+    dino.quad.position.y += dino.velocity.y * deltaTime;
+    if (!dino.isGrounded) {
+        dino.velocity.y += GRAVITY * deltaTime;
+    }
+    
+    if (dino.quad.position.y >= floorLimit) {
+        dino.isGrounded = true;
+        dino.velocity.y = 0;
+        dino.quad.position.y = floorLimit;
+    }
+
+    return 0;
+}
 
 int isKeyPressed(GLFWwindow *window, int keycode) {
     int state = glfwGetKey(window, keycode);
@@ -23,7 +57,6 @@ int isKeyPressed(GLFWwindow *window, int keycode) {
 }
 
 void processInput(GLFWwindow *window) {
-    
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -32,7 +65,20 @@ void processInput(GLFWwindow *window) {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     
-    const float playerSpeed = 150.0f * deltaTime;
+    if ((isKeyPressed(window, GLFW_KEY_SPACE) || isKeyPressed(window, GLFW_KEY_W)) && dino.isGrounded) {
+
+        dino.velocity.y = -400.0f;
+        dino.isGrounded = false;
+    }
+    
+    if (isKeyPressed(window, GLFW_KEY_DOWN) || isKeyPressed(window, GLFW_KEY_S)) {
+        dino.velocity.y = 300.0f;
+        dino.currentTexture = dinosaurDuckTex.id;
+
+    } else {
+        dino.currentTexture = dinosaurTex.id;
+    }
+
 }
 
 int main(void) {
@@ -49,12 +95,6 @@ int main(void) {
         return -1;
     }
 
-    /* Set up camera */
-    Camera camera;
-    camera.scale = 1.0f;
-    camera.rotation = 0.0f;
-    camera.origin = (Vector2) { gameWidth/2, gameHeight/2 };
-
     /* Load textures */
     FrameBuffer renderTexture;
     renderTexture.scaleType = GL_NEAREST;
@@ -62,27 +102,39 @@ int main(void) {
     renderTexture.texture.height = gameHeight;
     vinoxCreateFramebuffer(&renderTexture);
 
-    Texture dinosaurTex;
-    vinoxLoadTexture("dinosaur.png", &dinosaurTex, GL_NEAREST);
+    vinoxLoadTexture("resources/dinosaur.png", &dinosaurTex, GL_NEAREST);
+    vinoxLoadTexture("resources/dinosaurduck.png", &dinosaurDuckTex, GL_NEAREST);
 
+    /* Ground quad */
+    Quad floor;
+    floor.size = (Vector2) { gameWidth, 32.0f };
+    floor.position = (Vector2) { floor.size.x/2, gameHeight - floor.size.y/2 };
+    floorLimit = gameHeight - floor.size.y - 16.0f;
+
+    /* Set up player */
+    dino.isDead = false;
+    dino.isGrounded = true;
+    dino.quad.size = (Vector2) { 32.0f, 32.0f };
+    dino.quad.position = (Vector2) { 32.0f, floorLimit };
+    dino.currentTexture = dinosaurTex.id;
+    
     while (!glfwWindowShouldClose(window)) {
         int width, height;
 
-        processInput(window);
-    
         glfwGetFramebufferSize(window, &width, &height);
+  
+        processInput(window);
         
-        camera.position = (Vector2) { 0.0f, 0.0f };
-
+        updatePlayer();
+        
         vinoxBeginDrawing(width, height);
             vinoxClear((Vector4){ 0.2f, 0.2f, 0.2f, 1.0f });
             vinoxBeginTexture(&renderTexture);
                 vinoxClear((Vector4) { 0.0, 0.0, 0.0, 1.0});
-                vinoxBeginCamera(&camera);    
-                    vinoxCreateQuad((Quad){{0.0f, 0.0f}, { 32, 32}}, EMPTYQUAD, dinosaurTex.id, WHITE, 0.0f);
-                vinoxEndCamera();
+                    vinoxCreateQuad(floor, EMPTYQUAD, 0, WHITE, 0.0f);
+                    vinoxCreateQuad(dino.quad, EMPTYQUAD, dino.currentTexture, WHITE, 0.0f);
             vinoxEndTexture(&renderTexture);
-            vinoxCreateQuad((Quad) { {width/2, height/2}, {width, -height} }, EMPTYQUAD, renderTexture.texture.id, WHITE, 0.0f);
+            vinoxCreateQuad((Quad) { { width/2, height/2 }, { width, -height } }, EMPTYQUAD, renderTexture.texture.id, WHITE, 0.0f);
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);

@@ -8,12 +8,12 @@ SRCS = main.c
 
 OBJS = $(SRCS:.c=.o)
 
-MAIN = vinox
+MAIN = dino
 
 .PHONY: depend clean
 
 all: $(MAIN)
-	@echo Vinox has successfully compiled
+	@echo Dino has successfully compiled
 
 $(MAIN): $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
