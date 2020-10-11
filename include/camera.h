@@ -6,8 +6,8 @@
 typedef struct {
     float rotation;
     float scale;
-    int x, y;
-    int offsetX, offsetY;
+    Vector2 position;
+    Vector2 origin;
 } Camera;
 
 Matrix vinoxCameraMatrix(Camera *camera, Matrix projection);

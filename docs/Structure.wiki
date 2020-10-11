@@ -1,0 +1,25 @@
+                            == Structure ==
+----------------------------------------------------------------------
+
+[[Index]]
+
+                        === Engine Structure ===
+
+                            ==== Vingl ====
+    Vingl.c is where most of the core functionality takes place. It sets up
+the default framebuffer and buffer, it also is where most of the drawing
+api resides. Inside of vingl vinGLState is where most globals are held.
+This is to try and make sure we always know what variables are globals and
+which aren't. We have some utility functions in here as well such as begin
+camera and begintexture. Ideally these should be split up into other c files,
+which I plan to do however I need to change it so they take in parameters instead
+of using global state. At every EndFunction the current batch is called so the
+correct matrix math is used. VinoxInit will compile the shader programs(one for
+the framebuffer and one for the buffer) and set up everything needed to draw.
+
+                            ==== Buffer ====
+    Buffer.c is where we actually set up the buffers to try and split it up from
+vingl to keep the engine a little more organized. This is also where the user creates
+framebuffers however this will be split up as current user framebuffers also have a
+vao and vbo when we only need that for the whole screen framebuffer. The reason we have a
+default framebuffer is so eventually in the api I can have a way for easy special affects.

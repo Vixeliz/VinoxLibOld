@@ -14,7 +14,7 @@
 #include "shader.h"
 
 /* Functions for the file */
-static Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
+static Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask,
         float textureID, Vector4 color, float rotation);
 static int drawBatchQuads();
 
@@ -54,6 +54,11 @@ int vinoxClear(Vector4 color) {
 static Matrix lastMatrix;
 /* Begin a framebuffer and bind the current framebuffer to that one */
 int vinoxBeginTexture(FrameBuffer *frameBuffer) {
+    for (int i = 1; i <= 8; i++) {
+        glActiveTexture(GL_TEXTURE0 + i);   
+        glBindTexture(GL_TEXTURE_2D, i);
+    }
+
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
     vinoxResizeFramebuffer(frameBuffer);
     
@@ -100,7 +105,6 @@ static int drawBatchQuads() {
     /* Bind our new vertex buffer to the vbo and send it to the gpu, then
      * attach Vertex array and draw */
     glActiveTexture(GL_TEXTURE0 + vinGLState.frameBuffer.texture.id);
-    glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.texture.id);
     glBindBuffer(GL_ARRAY_BUFFER, vinGLState.buffer.vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vinGLState.buffer.vertices[0]);
         
@@ -144,12 +148,12 @@ int vinoxInit(int width, int height) {
         return -1;
     }
     
+    /* Create our buffers */
+    vinoxCreateBuffer(&vinGLState.buffer);
+    
     /* Don't bind anything to texture slot 0 */
     glActiveTexture(GL_TEXTURE0);   
     glBindTexture(GL_TEXTURE_2D, 0);
-
-    /* Create our buffers */
-    vinoxCreateBuffer(&vinGLState.buffer);
     
     glUseProgram(vinGLState.screenProgram.shaderID);
     vinGLState.frameBuffer.texture.width = width;
@@ -167,7 +171,8 @@ int vinoxInit(int width, int height) {
     
     /* Assign texture ids to the array inside of the shader program */
     glUseProgram(vinGLState.program.shaderID);
-    
+    glBindVertexArrayOES(vinGLState.buffer.vao);
+
     unsigned int loc2 = glGetUniformLocation(vinGLState.program.shaderID, "uTextures");
     int textures[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
     glUniform1iv(loc2, 8, textures);
@@ -184,6 +189,12 @@ void vinoxBeginDrawing(int width, int height) {
     vinGLState.width = width;
     vinGLState.height = height;
     
+    /*Bind all the textures*/
+    for (int i = 1; i <= 8; i++) {
+        glActiveTexture(GL_TEXTURE0 + i);   
+        glBindTexture(GL_TEXTURE_2D, i);
+    }
+
     /* Switch over to drawing to our framebuffer */
     glBindFramebuffer(GL_FRAMEBUFFER, vinGLState.frameBuffer.fbo);
     vinGLState.frameBuffer.texture.width = width;
@@ -215,10 +226,9 @@ void vinoxEndDrawing() {
     /* Draw our framebuffer texture to the screen */
     glUseProgram(vinGLState.screenProgram.shaderID);
     glBindVertexArrayOES(vinGLState.frameBuffer.vao);
-    glActiveTexture(vinGLState.frameBuffer.texture.id);
-    glBindTexture(GL_TEXTURE_2D, vinGLState.frameBuffer.texture.id);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     
+    glBindVertexArrayOES(vinGLState.buffer.vao);
 
     /* Reset counters to 0 */
     indexCount = 0;
@@ -235,7 +245,7 @@ int vinoxEnd() {
 
 /* This is called by the user just is basically a wrapper around the createQuad
  * in vingl however has some checking for when to split up a batch */
-int vinoxCreateQuad(float x, float y, float width, float height, float textureID, Vector4 color, float rotation) {
+int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector4 color, float rotation) {
         
         /* Detect how many drawcalls are needed for vertex count */
         drawCalls = vertexCount/(MAXVERTEXCOUNT);
@@ -248,7 +258,7 @@ int vinoxCreateQuad(float x, float y, float width, float height, float textureID
         }
         
         /* Assiging vertex data to our vertices array */
-        buffer = createQuad(buffer, x, y, width, height, textureID, color, rotation);
+        buffer = createQuad(buffer, quad, textureMask, textureID, color, rotation);
         indexCount += 6;
 
     return 0;
@@ -257,16 +267,8 @@ int vinoxCreateQuad(float x, float y, float width, float height, float textureID
 
 /* Function to assign data to each vertex for every quad in the vertices array
  * */
-Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
-        float textureID, Vector4 color, float rotation) {
-    
-    /* Set the active texture and bind it to whichever id is passed */
-    /* This is kind of jank but I haven't fixed it yet so here it will stay for
-     * now */
-    if (!(textureID == 0)) {
-    glActiveTexture(GL_TEXTURE0 + textureID);   
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    }
+Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, float textureID,
+        Vector4 color, float rotation) {
     
     /* We use this to avoid having 4 seperate sections */
     Vector2 quadVertices[4] = {
@@ -287,27 +289,27 @@ Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
     /* We use matrices to transform the vertices now to make it easier to do so
      * especially rotating */
     Matrix transform = MatrixIdentity();
-    Matrix translate = MatrixTranslate(x, y, 0.0f);
+    Matrix translate = MatrixTranslate(quad.position.x, quad.position.y, 0.0f);
     transform = MatrixMultiply(translate, transform);
     
     Vector3 axis = (Vector3) {0.0f, 0.0f, 1.0f};
     Matrix rotate = MatrixRotate(Vector3Normalize(axis), rotation*DEG2RAD);
     transform = MatrixMultiply(rotate, transform);
 
-    Matrix scale = MatrixScale(width, height, 1.0f);
+    Matrix scale = MatrixScale(quad.size.x, quad.size.y, 1.0f);
     transform = MatrixMultiply(scale, transform);
 
     /* Sets all of the needed data for current vertex then moves onto the next
      * 3*/
     for (int i = 0; i < 4; i++) {
-        Vector3 vertex1 = Vector3Transform((Vector3) { quadVertices[i].x, quadVertices[i].y, 0.0f }, transform);
-        target->position = (Vector3) { vertex1.x, vertex1.y, 0.0f };
+        Vector3 vertex = Vector3Transform((Vector3) { quadVertices[i].x, quadVertices[i].y, 0.0f }, transform);
+        target->position = (Vector3) { vertex.x, vertex.y, 0.0f };
         target->color = color;
         target->texCoords = (Vector2) { textureCoords[i].x, textureCoords[i].y };
         target->texIndex = textureID;
         target++;
     }
-    
+
     vertexCount += 4;
     return target;
 }

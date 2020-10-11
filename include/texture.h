@@ -14,6 +14,6 @@ typedef struct {
 } FrameBuffer;
 
 
-int vinoxLoadTexture(const char* filepath, Texture *texture);
+int vinoxLoadTexture(const char* filepath, Texture *texture, GLint scaleType);
 
 #endif

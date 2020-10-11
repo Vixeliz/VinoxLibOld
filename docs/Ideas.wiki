@@ -1,0 +1,12 @@
+                        == Ideas/Ideals ==
+----------------------------------------------------------------------
+
+[[Index]]
+-----
+
+
+Ideals:
+* Keep it simple I would like to introduce a variety of features that are very commonly used however I would like to overall keep it to a minimal base that people can understand and build upon.
+* GLES2 only. GLES2 Is chosen due to it's high portability. 
+* 2D Only, I personally do not have much interest in making 3d games as I personally find 2d games more enjoyable so I plan to keep this framework 2d only in the api. However if someone wanted the 2d renderer but wanted to do 3d they could always make direct opengl calls.
+

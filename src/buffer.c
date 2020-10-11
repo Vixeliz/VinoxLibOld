@@ -137,5 +137,6 @@ int vinoxCreateFramebuffer(FrameBuffer *frameBuffer) {
         printf("Framebuffer failure!\n");
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindVertexArrayOES(0);
     return 0;
 }

@@ -1,0 +1,9 @@
+                                = Vinox Wiki =
+---------------------------------------------------------------------------------
+
+You can look at this in any text editor however it is made using [vimwiki](https://github.com/vimwiki/vimwiki)
+
+== Index ==
+[[API]] -- This goes over the api of Vinox
+[[Structure]] -- This goes over how vinox is layed out internally
+[[Ideas]] -- Why vinox does certain things

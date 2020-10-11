@@ -8,7 +8,7 @@ Matrix vinoxCameraMatrix(Camera *camera, Matrix projection) {
     Matrix viewproj = MatrixIdentity();
 
     /* Camera origin */
-    Matrix origin = MatrixTranslate(camera->offsetX, camera->offsetY, 0.0f);
+    Matrix origin = MatrixTranslate(camera->origin.x, camera->origin.y, 0.0f);
     view = MatrixMultiply(origin, view);
 
         
@@ -23,7 +23,7 @@ Matrix vinoxCameraMatrix(Camera *camera, Matrix projection) {
     view = MatrixMultiply(scale, view);
         
     /* Camera position */
-    Matrix position = MatrixTranslate(-camera->x, -camera->y, 0.0f);
+    Matrix position = MatrixTranslate(-camera->position.x, -camera->position.y, 0.0f);
     view = MatrixMultiply(position, view);
      
     viewproj = MatrixMultiply(view, projection);

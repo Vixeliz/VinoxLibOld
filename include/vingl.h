@@ -6,6 +6,11 @@
 #include "texture.h"
 
 typedef struct {
+    Vector2 position;
+    Vector2 size;
+} Quad;
+
+typedef struct {
     Vector3 position;
     Vector4 color;
     Vector2 texCoords;
@@ -23,6 +28,6 @@ int vinoxEndTexture(FrameBuffer *frameBuffer);
 int vinoxClear(Vector4 color);
 
 unsigned int vinoxCreateTexture(const char* path);
-int vinoxCreateQuad(float x, float y, float width, float height, float textureID, Vector4 color, float rotation);
+int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector4 color, float rotation);
 
 #endif
