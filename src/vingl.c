@@ -41,7 +41,7 @@ static unsigned int loc;
 
 /* Counters */
 static uint32_t indexCount = 0;
-static uint32_t vertexCount = 0;
+static uint32_t quadCount = 0;
 static uint32_t drawCalls = 0;
 
 /* Clears color so we can do this for render textures as well */
@@ -233,7 +233,7 @@ void vinoxEndDrawing() {
 
     /* Reset counters to 0 */
     indexCount = 0;
-    vertexCount = 0;
+    quadCount = 0;
 }   
 
 /* TODO: uninit and destroy everything */
@@ -249,15 +249,14 @@ int vinoxEnd() {
 int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector4 color, float rotation) {
         
         /* Detect how many drawcalls are needed for vertex count */
-        drawCalls = vertexCount/(MAXVERTEXCOUNT);
+        drawCalls = quadCount/(MAXQUADCOUNT);
         
         /* Detect if adding any more vertices will cause a new batch to be made
          * if so drawThe current batch and reset buffer */
-        if ((int)((vertexCount += 100)/(MAXVERTEXCOUNT)) > (int)drawCalls) {
+        if ((int)((quadCount + 1)/(MAXQUADCOUNT)) > (int)drawCalls) {
             drawBatchQuads();
             buffer = vinGLState.buffer.vertices;
         }
-        
         /* Assiging vertex data to our vertices array */
         buffer = createQuad(buffer, quad, textureMask, textureID, color, rotation);
         indexCount += 6;
@@ -311,6 +310,6 @@ Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, float textureID,
         target++;
     }
 
-    vertexCount += 4;
+    quadCount++;
     return target;
 }
