@@ -57,6 +57,7 @@ int main(void) {
 
     /* Load textures */
     FrameBuffer renderTexture;
+    renderTexture.scaleType = GL_NEAREST;
     renderTexture.texture.width = gameWidth;
     renderTexture.texture.height = gameHeight;
     vinoxCreateFramebuffer(&renderTexture);

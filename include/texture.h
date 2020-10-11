@@ -10,6 +10,7 @@ typedef struct {
     GLuint vao;
     GLuint vbo;
     GLuint fbo;
+    GLint scaleType;
     Texture texture;
 } FrameBuffer;
 

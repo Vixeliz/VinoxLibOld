@@ -158,6 +158,7 @@ int vinoxInit(int width, int height) {
     glUseProgram(vinGLState.screenProgram.shaderID);
     vinGLState.frameBuffer.texture.width = width;
     vinGLState.frameBuffer.texture.height = height;
+    vinGLState.frameBuffer.scaleType = GL_LINEAR;
     vinoxCreateFramebuffer(&vinGLState.frameBuffer);
 
     /* Set up a default camera */
