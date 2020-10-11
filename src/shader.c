@@ -38,17 +38,16 @@ static int compileVertexShader(ShaderProgram *program) {
         "   vTexIndex = aTexIndex;\n"
         "   gl_Position = projection * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
         "}\n\0";
+    
     /* Based off of what type of program we wanted assign one of the two default
      * shaders */
     const char* currentSource;
-    if (program->type == 0) {
-        currentSource = vertexSource;
-    } else if (program->type == 1) {
+    if (program->type == 1) {
         currentSource = screenVSrc;
     } else {
-        printf("No shader type\n");
+        currentSource = vertexSource;
     }
-    
+
     /* Compile the shader */
     program->vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(program->vertexShader, 1, &currentSource, NULL);
@@ -92,12 +91,10 @@ static int compileFragmentShader(ShaderProgram *program) {
     /* Based off of what type of program we wanted assign one of the two default
      * shaders */
     const char* currentSource;
-    if (program->type == 0) {
-        currentSource = fragmentSource;
-    } else if (program->type == 1) {
+    if (program->type == 1) {
         currentSource = screenFSrc;
     } else {
-        printf("No shader type\n");
+        currentSource = fragmentSource;
     }
 
     /* Compile the shader */

@@ -16,7 +16,7 @@
 /* Functions for the file */
 static Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
         float textureID, Vector4 color, float rotation);
-static int drawBatch();
+static int drawBatchQuads();
 
 /* Global Area */
 typedef struct {
@@ -43,8 +43,6 @@ static unsigned int loc;
 static uint32_t indexCount = 0;
 static uint32_t vertexCount = 0;
 static uint32_t drawCalls = 0;
-static int currentDrawCall = 0;
-static int lastDrawCall = 0;
 
 /* Clears color so we can do this for render textures as well */
 int vinoxClear(Vector4 color) {
@@ -69,7 +67,7 @@ int vinoxBeginTexture(FrameBuffer *frameBuffer) {
 /* Render all quads to the framebuffer and bind back to the default framebuffer
  * */
 int vinoxEndTexture(FrameBuffer *frameBuffer) {
-    drawBatch();
+    drawBatchQuads();
     glViewport(0, 0, vinGLState.width, vinGLState.height);
     vinGLState.matrix = lastMatrix;
     glUniformMatrix4fv(glGetUniformLocation(vinGLState.program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
@@ -88,7 +86,7 @@ int vinoxBeginCamera(Camera *camera) {
 
 /* When we are done set the camera back to the default camera */
 int vinoxEndCamera() {
-    drawBatch();
+    drawBatchQuads();
     vinGLState.matrix = defaultMatrix;
     glUniformMatrix4fv(glGetUniformLocation(vinGLState.program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
     return 0;
@@ -97,7 +95,7 @@ int vinoxEndCamera() {
 /* This function draws the current batch of vertices and elements of quads
  * however in the future I may split this up into different functions depending
  * on the geometry type etc */
-static int drawBatch() {
+static int drawBatchQuads() {
     
     /* Bind our new vertex buffer to the vbo and send it to the gpu, then
      * attach Vertex array and draw */
@@ -209,7 +207,7 @@ void vinoxBeginDrawing(int width, int height) {
 void vinoxEndDrawing() {
     
     /* Make sure we finish drawing the current batch */
-    drawBatch();
+    drawBatchQuads();
     
     /* Switch back to drawing to the context */
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -225,8 +223,6 @@ void vinoxEndDrawing() {
     /* Reset counters to 0 */
     indexCount = 0;
     vertexCount = 0;
-    currentDrawCall = 0;
-    lastDrawCall = 0;
 }   
 
 /* TODO: uninit and destroy everything */
@@ -243,12 +239,11 @@ int vinoxCreateQuad(float x, float y, float width, float height, float textureID
         
         /* Detect how many drawcalls are needed for vertex count */
         drawCalls = vertexCount/(MAXVERTEXCOUNT);
-        currentDrawCall = drawCalls;
         
         /* Detect if adding any more vertices will cause a new batch to be made
          * if so drawThe current batch and reset buffer */
-        if ((int)((vertexCount += 100)/(MAXVERTEXCOUNT)) > currentDrawCall) {
-            drawBatch();
+        if ((int)((vertexCount += 100)/(MAXVERTEXCOUNT)) > (int)drawCalls) {
+            drawBatchQuads();
             buffer = vinGLState.buffer.vertices;
         }
         
@@ -256,7 +251,6 @@ int vinoxCreateQuad(float x, float y, float width, float height, float textureID
         buffer = createQuad(buffer, x, y, width, height, textureID, color, rotation);
         indexCount += 6;
 
-        lastDrawCall = currentDrawCall;
     return 0;
 }
 
@@ -272,9 +266,24 @@ Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
     if (!(textureID == 0)) {
     glActiveTexture(GL_TEXTURE0 + textureID);   
     glBindTexture(GL_TEXTURE_2D, textureID);
-    }else{
     }
     
+    /* We use this to avoid having 4 seperate sections */
+    Vector2 quadVertices[4] = {
+    (Vector2) { -0.5f, -0.5f },
+    (Vector2) { 0.5f, -0.5f },
+    (Vector2) { 0.5f, 0.5f },
+    (Vector2) { -0.5f, 0.5f }};
+
+    
+    /* Temporarily have it use the full texture coords however we can take in a
+     * rectangle and change this array acordingly */
+    Vector2 textureCoords[4] = {
+    (Vector2) { 0.0f, 0.0f },
+    (Vector2) { 1.0f, 0.0f },
+    (Vector2) { 1.0f, 1.0f },
+    (Vector2) { 0.0f, 1.0f }};
+
     /* We use matrices to transform the vertices now to make it easier to do so
      * especially rotating */
     Matrix transform = MatrixIdentity();
@@ -290,35 +299,15 @@ Vertex* createQuad(Vertex* target, float x, float y, float width, float height,
 
     /* Sets all of the needed data for current vertex then moves onto the next
      * 3*/
-    Vector3 vertex1 = Vector3Transform((Vector3) { -0.5f, -0.5f, 0.0f }, transform);
-    target->position = (Vector3) { vertex1.x, vertex1.y, 0.0f };
-    target->color = color;
-    target->texCoords = (Vector2) { 0.0f, 0.0f };
-    target->texIndex = textureID;
-    target++;
-
-    Vector3 vertex2 = Vector3Transform((Vector3) { 0.5f, -0.5f, 0.0f }, transform);
-    target->position = (Vector3) { vertex2.x, vertex2.y, 0.0f };
-    target->color = color;
-    target->texCoords = (Vector2) { 1.0f, 0.0f };
-    target->texIndex = textureID;
-    target++;
-
-    Vector3 vertex3 = Vector3Transform((Vector3) { 0.5f, 0.5f, 0.0f }, transform);
-    target->position = (Vector3) { vertex3.x, vertex3.y, 0.0f };
-    target->color = color;
-    target->texCoords = (Vector2) { 1.0f, 1.0f };
-    target->texIndex = textureID;
-    target++;
-
-    Vector3 vertex4 = Vector3Transform((Vector3) { -0.5f, 0.5f, 0.0f }, transform);
-    target->position = (Vector3) { vertex4.x, vertex4.y, 0.0f };
-    target->color = color;
-    target->texCoords = (Vector2) { 0.0f, 1.0f };
-    target->texIndex = textureID;
-    target++;
-
-
+    for (int i = 0; i < 4; i++) {
+        Vector3 vertex1 = Vector3Transform((Vector3) { quadVertices[i].x, quadVertices[i].y, 0.0f }, transform);
+        target->position = (Vector3) { vertex1.x, vertex1.y, 0.0f };
+        target->color = color;
+        target->texCoords = (Vector2) { textureCoords[i].x, textureCoords[i].y };
+        target->texIndex = textureID;
+        target++;
+    }
+    
     vertexCount += 4;
     return target;
 }
