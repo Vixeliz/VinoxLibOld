@@ -36,7 +36,6 @@ static const int gameWidth = 256;
 static const int gameHeight = 144;
 
 int updatePlayer() {
-    
     dino.quad.position.y += dino.velocity.y * deltaTime;
     if (!dino.isGrounded) {
         dino.velocity.y += GRAVITY * deltaTime;
