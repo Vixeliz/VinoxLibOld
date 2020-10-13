@@ -265,6 +265,20 @@ int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector4 color,
 }
 
 
+/* Raylib does not provide a vector2transform so we make our own from my testing
+ * this improved performance around 4% to 5% */
+Vector2 Vector2Transform(Vector2 v, Matrix mat) {
+
+        Vector2 result = { 0 };
+        float x = v.x;
+        float y = v.y;
+
+        result.x = mat.m0*x + mat.m4*y + mat.m12;
+        result.y = mat.m1*x + mat.m5*y + mat.m13;
+
+        return result;
+}
+
 /* Function to assign data to each vertex for every quad in the vertices array
  * */
 Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, float textureID,
@@ -288,6 +302,10 @@ Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, float textureID,
 
     /* We use matrices to transform the vertices now to make it easier to do so
      * especially rotating */
+
+    /* Currently this is the most performance bottlknecked area due to all the
+     * matrix math for now I think it is fine but something to note to look in
+     * for the future */
     Matrix transform = MatrixIdentity();
     Matrix translate = MatrixTranslate(quad.position.x, quad.position.y, 0.0f);
     transform = MatrixMultiply(translate, transform);
@@ -302,7 +320,7 @@ Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, float textureID,
     /* Sets all of the needed data for current vertex then moves onto the next
      * 3*/
     for (int i = 0; i < 4; i++) {
-        Vector3 vertex = Vector3Transform((Vector3) { quadVertices[i].x, quadVertices[i].y, 0.0f }, transform);
+        Vector2 vertex = Vector2Transform((Vector2) { quadVertices[i].x, quadVertices[i].y }, transform);
         target->position = (Vector3) { vertex.x, vertex.y, 0.0f };
         target->color = color;
         target->texCoords = (Vector2) { textureCoords[i].x, textureCoords[i].y };

@@ -1,4 +1,4 @@
-CFLAGS = -Wall -O2 -fPIC
+CFLAGS = -Wall -Os -fPIC
 
 INCLUDES = -Iinclude -Iexternal
 
@@ -18,7 +18,7 @@ all: $(MAIN)
 	@echo LibVinox has successfully compiled
 
 $(MAIN): $(OBJS)
-	gcc -fPIC -shared $(OBJS) -o libvinox.so
+	$(CC) -fPIC -shared $(OBJS) -o libvinox.so
 	ar -rcs libvinox.a $(OBJS)
 
 .c.o:
