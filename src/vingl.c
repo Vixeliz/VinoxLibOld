@@ -306,6 +306,9 @@ Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, float textureID,
     /* Currently this is the most performance bottlknecked area due to all the
      * matrix math for now I think it is fine but something to note to look in
      * for the future */
+    /* One idea could be two do the position and scale our selves like
+     * previously to avoid two multiply calls then only do rotation and use our
+     * Vector2Transform for the speed up*/
     Matrix transform = MatrixIdentity();
     Matrix translate = MatrixTranslate(quad.position.x, quad.position.y, 0.0f);
     transform = MatrixMultiply(translate, transform);
