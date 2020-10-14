@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #define RAYMATH_IMPLEMENTATION
 #include "raymath.h"
 #include "vingl.h"
@@ -36,7 +37,7 @@ static PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
 static vinState vinGLState = {0};
 static Matrix defaultMatrix;
 static Vertex* quadBuffer = vinGLState.quadBuffer.vertices;
-static Vertex* pointBuffer = vinGLState.pointBuffer.vertices;
+/*static Vertex* pointBuffer = vinGLState.pointBuffer.vertices;*/
 
 /* Counters */
 static uint32_t indexCount = 0;
@@ -109,7 +110,7 @@ static int drawBatchQuads() {
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vinGLState.quadBuffer.vertices[0]);
         
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-    memset(&vinGLState.quadBuffer.vertices[0], 0, sizeof(vinGLState.quadBuffer.vertices));
+    memset(&vinGLState.quadBuffer.vertices, 0, sizeof(vinGLState.quadBuffer.vertices));
 
     return 0;
 }
@@ -201,11 +202,10 @@ void vinoxEndDrawing() {
     /* Reset counters to 0 */
     indexCount = 0;
     quadCount = 0;
-}   
+}
 
-/* TODO: uninit and destroy everything */
 int vinoxEnd() {
-
+    
     return 0;
 }
 
