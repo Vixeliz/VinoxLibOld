@@ -21,7 +21,8 @@ static int drawBatchQuads();
 /* Global Area */
 typedef struct {
     Matrix matrix;
-    Buffer buffer;
+    Buffer quadBuffer;
+    Buffer pointBuffer;
     FrameBuffer frameBuffer;
     ShaderProgram program;
     ShaderProgram screenProgram;
@@ -36,7 +37,8 @@ static PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
 /* Global variables */
 static vinState vinGLState = {0};
 static Matrix defaultMatrix;
-static Vertex* buffer = vinGLState.buffer.vertices;
+static Vertex* quadBuffer = vinGLState.quadBuffer.vertices;
+static Vertex* pointBuffer = vinGLState.pointBuffer.vertices;
 static unsigned int loc;
 
 /* Counters */
@@ -59,6 +61,7 @@ int vinoxBeginTexture(FrameBuffer *frameBuffer) {
         glBindTexture(GL_TEXTURE_2D, i);
     }
 
+    glBindVertexArrayOES(vinGLState.quadBuffer.vao);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
     vinoxResizeFramebuffer(frameBuffer);
     
@@ -105,12 +108,11 @@ static int drawBatchQuads() {
     /* Bind our new vertex buffer to the vbo and send it to the gpu, then
      * attach Vertex array and draw */
     glActiveTexture(GL_TEXTURE0 + vinGLState.frameBuffer.texture.id);
-    glBindBuffer(GL_ARRAY_BUFFER, vinGLState.buffer.vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vinGLState.buffer.vertices[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, vinGLState.quadBuffer.vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vinGLState.quadBuffer.vertices[0]);
         
-    glBindVertexArrayOES(vinGLState.buffer.vao);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-    memset(&vinGLState.buffer.vertices[0], 0, sizeof(vinGLState.buffer.vertices));
+    memset(&vinGLState.quadBuffer.vertices[0], 0, sizeof(vinGLState.quadBuffer.vertices));
 
     return 0;
 }
@@ -149,7 +151,7 @@ int vinoxInit(int width, int height) {
     }
     
     /* Create our buffers */
-    vinoxCreateBuffer(&vinGLState.buffer);
+    vinoxCreateBuffer(&vinGLState.quadBuffer);
     
     /* Don't bind anything to texture slot 0 */
     glActiveTexture(GL_TEXTURE0);   
@@ -172,7 +174,6 @@ int vinoxInit(int width, int height) {
     
     /* Assign texture ids to the array inside of the shader program */
     glUseProgram(vinGLState.program.shaderID);
-    glBindVertexArrayOES(vinGLState.buffer.vao);
 
     unsigned int loc2 = glGetUniformLocation(vinGLState.program.shaderID, "uTextures");
     int textures[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
@@ -186,7 +187,8 @@ int vinoxInit(int width, int height) {
 void vinoxBeginDrawing(int width, int height) {
     
     /* Reassign the buffer pointer to the vertices for editing */
-    buffer = vinGLState.buffer.vertices;
+    glBindVertexArrayOES(vinGLState.quadBuffer.vao);
+    quadBuffer = vinGLState.quadBuffer.vertices;
     vinGLState.width = width;
     vinGLState.height = height;
     
@@ -228,8 +230,6 @@ void vinoxEndDrawing() {
     glUseProgram(vinGLState.screenProgram.shaderID);
     glBindVertexArrayOES(vinGLState.frameBuffer.vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    
-    glBindVertexArrayOES(vinGLState.buffer.vao);
 
     /* Reset counters to 0 */
     indexCount = 0;
@@ -255,10 +255,10 @@ int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector4 color,
          * if so drawThe current batch and reset buffer */
         if ((int)((quadCount + 1)/(MAXQUADCOUNT)) > (int)drawCalls) {
             drawBatchQuads();
-            buffer = vinGLState.buffer.vertices;
+            quadBuffer = vinGLState.quadBuffer.vertices;
         }
         /* Assiging vertex data to our vertices array */
-        buffer = createQuad(buffer, quad, textureMask, textureID, color, rotation);
+        quadBuffer = createQuad(quadBuffer, quad, textureMask, textureID, color, rotation);
         indexCount += 6;
 
     return 0;
