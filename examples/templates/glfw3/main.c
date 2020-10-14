@@ -71,6 +71,7 @@ int main(void) {
         vinoxBeginDrawing(windowWidth, windowHeight);
             vinoxClear(WHITE);
             vinoxCreateQuad((Quad) { { windowWidth/2, windowHeight/2 }, { 50.0f, 50.0f } }, EMPTYQUAD, 0, GREEN, 0.0f);
+            vinoxCreateQuad((Quad) { mousePos, { 25.0f, 25.0f } }, EMPTYQUAD, 0, PURPLE, 0.0f);
         vinoxEndDrawing();
 
         /* Switch buffers and poll events */
