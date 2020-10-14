@@ -16,7 +16,7 @@ typedef struct {
     Vertex vertices[MAXVERTEXCOUNT];
 } Buffer;
 
-int vinoxCreateBuffer(Buffer *buffer);
+int vinoxCreateQuadBuffer(Buffer *buffer);
 int vinoxCreateFramebuffer(FrameBuffer *frameBuffer);
 int vinoxResizeFramebuffer(FrameBuffer *frameBuffer);
 #endif

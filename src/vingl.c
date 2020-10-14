@@ -151,7 +151,7 @@ int vinoxInit(int width, int height) {
     }
     
     /* Create our buffers */
-    vinoxCreateBuffer(&vinGLState.quadBuffer);
+    vinoxCreateQuadBuffer(&vinGLState.quadBuffer);
     
     /* Don't bind anything to texture slot 0 */
     glActiveTexture(GL_TEXTURE0);   

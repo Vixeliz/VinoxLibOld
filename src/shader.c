@@ -123,7 +123,7 @@ int testval;
     if(testval == GL_FALSE) {
         char infolog[1024];
         glGetShaderInfoLog(program->vertexShader, 1024, NULL, infolog);
-        printf(infolog);
+        printf("%s", infolog);
 	    abort = -1;
 	    printf("The vertex shader failed to compile\n");
     }
@@ -132,7 +132,7 @@ int testval;
     if(testval == GL_FALSE) {
         char infolog[1024];
         glGetShaderInfoLog(program->fragmentShader, 1024, NULL, infolog);
-        printf(infolog);
+        printf("%s", infolog);
 	    abort = -1;
 	    printf("The fragment shader failed to compile\n");
     }

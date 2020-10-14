@@ -11,7 +11,7 @@ static PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
 static PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
 static PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
 
-int vinoxCreateBuffer(Buffer *buffer) {
+int vinoxCreateQuadBuffer(Buffer *buffer) {
     
     /* Load extensions */
     glGenVertexArraysOES = 
