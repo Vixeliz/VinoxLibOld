@@ -1,4 +1,4 @@
-CFLAGS = -Wall -g -fPIC
+CFLAGS = -Wall -Os -fPIC
 
 INCLUDES = -Iinclude -Iexternal
 
