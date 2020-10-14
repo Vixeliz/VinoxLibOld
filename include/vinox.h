@@ -3,6 +3,10 @@
 
 #include "shader.h"
 #include "vingl.h"
+#include "camera.h"
+#include "texture.h"
+#include "sound.h"
+#include "buffer.h"
 
 #define EMPTYQUAD (Quad) { { 0.0f, 0.0f }, { 0.0f, 0.0f } }
 
