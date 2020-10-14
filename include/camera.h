@@ -11,5 +11,7 @@ typedef struct {
 } Camera;
 
 Matrix vinoxCameraMatrix(Camera *camera, Matrix projection);
+Vector2 vinoxScreenToWorld(Vector2 position, Camera *camera);
+Vector2 vinoxWorldToScreen(Vector2 position, Camera *camera, Vector2 screenSize);
 
 #endif

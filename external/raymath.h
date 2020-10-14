@@ -208,6 +208,18 @@ RMDEF Vector2 Vector2Subtract(Vector2 v1, Vector2 v2)
     return result;
 }
 
+RMDEF Vector2 Vector2Transform(Vector2 v, Matrix mat)
+{
+    Vector2 result = { 0 };
+    float x = v.x;
+    float y = v.y;
+
+    result.x = mat.m0*x + mat.m4*y + mat.m12;
+    result.y = mat.m1*x + mat.m5*y + mat.m13;
+
+    return result;
+
+}
 // Subtract vector by float value
 RMDEF Vector2 Vector2SubtractValue(Vector2 v, float sub)
 {

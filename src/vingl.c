@@ -231,21 +231,6 @@ int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector4 color,
     return 0;
 }
 
-
-/* Raylib does not provide a vector2transform so we make our own from my testing
- * this improved performance around 4% to 5% */
-Vector2 Vector2Transform(Vector2 v, Matrix mat) {
-
-        Vector2 result = { 0 };
-        float x = v.x;
-        float y = v.y;
-
-        result.x = mat.m0*x + mat.m4*y + mat.m12;
-        result.y = mat.m1*x + mat.m5*y + mat.m13;
-
-        return result;
-}
-
 /* Function to assign data to each vertex for every quad in the vertices array
  * */
 Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, float textureID,

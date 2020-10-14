@@ -7,10 +7,9 @@ Matrix vinoxCameraMatrix(Camera *camera, Matrix projection) {
     Matrix view = MatrixIdentity();
     Matrix viewproj = MatrixIdentity();
 
-    /* Camera origin */
-    Matrix origin = MatrixTranslate(camera->origin.x, camera->origin.y, 0.0f);
-    view = MatrixMultiply(origin, view);
-
+    /* Camera position */
+    Matrix position = MatrixTranslate(-camera->position.x, -camera->position.y, 0.0f);
+    view = MatrixMultiply(position, view);
         
     /* Camera rotation */
     Matrix rotate = MatrixIdentity();
@@ -22,11 +21,23 @@ Matrix vinoxCameraMatrix(Camera *camera, Matrix projection) {
     Matrix scale = MatrixScale(camera->scale, camera->scale, 1.0f);
     view = MatrixMultiply(scale, view);
         
-    /* Camera position */
-    Matrix position = MatrixTranslate(-camera->position.x, -camera->position.y, 0.0f);
-    view = MatrixMultiply(position, view);
+    /* Camera origin */
+    Matrix origin = MatrixTranslate(camera->origin.x, camera->origin.y, 0.0f);
+    view = MatrixMultiply(origin, view);
      
     viewproj = MatrixMultiply(view, projection);
     
     return viewproj;
+}
+
+Vector2 vinoxScreenToWorld(Vector2 position, Camera *camera) {
+    Matrix invertedCamera = MatrixInvert(vinoxCameraMatrix(camera, MatrixIdentity()));
+    Vector2 transform = Vector2Transform((Vector2) { position.x, position.y }, invertedCamera); 
+    
+    return (Vector2) { transform.x, transform.y };
+}
+
+Vector2 vinoxWorldToScreen(Vector2 position, Camera *camera, Vector2 screenSize) {
+    /*vinoxCameraMatrix(camera);   */
+    return (Vector2) { 0.0f, 0.0f };
 }

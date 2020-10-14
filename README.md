@@ -35,6 +35,8 @@ Notes
 ------
 The examples are coded very poorly. I plan on going back through and cleaning them up but currently I just want to get features in.
 
+Raymath is slightly modified currently just a Vector2Transform
+
 Current Limitations
 --------------------
 * No audio
