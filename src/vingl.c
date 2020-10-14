@@ -23,9 +23,7 @@ typedef struct {
     Matrix matrix;
     Buffer quadBuffer;
     Buffer pointBuffer;
-    FrameBuffer frameBuffer;
     ShaderProgram program;
-    ShaderProgram screenProgram;
     int width, height;
 } vinState;
 
@@ -39,7 +37,6 @@ static vinState vinGLState = {0};
 static Matrix defaultMatrix;
 static Vertex* quadBuffer = vinGLState.quadBuffer.vertices;
 static Vertex* pointBuffer = vinGLState.pointBuffer.vertices;
-static unsigned int loc;
 
 /* Counters */
 static uint32_t indexCount = 0;
@@ -79,7 +76,7 @@ int vinoxEndTexture(FrameBuffer *frameBuffer) {
     glViewport(0, 0, vinGLState.width, vinGLState.height);
     vinGLState.matrix = lastMatrix;
     glUniformMatrix4fv(glGetUniformLocation(vinGLState.program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
-    glBindFramebuffer(GL_FRAMEBUFFER, vinGLState.frameBuffer.fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return 0;
 }
 
@@ -107,7 +104,7 @@ static int drawBatchQuads() {
     
     /* Bind our new vertex buffer to the vbo and send it to the gpu, then
      * attach Vertex array and draw */
-    glActiveTexture(GL_TEXTURE0 + vinGLState.frameBuffer.texture.id);
+    glActiveTexture(GL_TEXTURE0);
     glBindBuffer(GL_ARRAY_BUFFER, vinGLState.quadBuffer.vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vinGLState.quadBuffer.vertices[0]);
         
@@ -143,12 +140,6 @@ int vinoxInit(int width, int height) {
         printf("Failed to compile world shader aborting\n");
         return -1;
     }
-
-    vinGLState.screenProgram.type = 1;
-    if (vinoxCompileShader(&vinGLState.screenProgram) == -1) {
-        printf("Failed to compile world shader aborting\n");
-        return -1;
-    }
     
     /* Create our buffers */
     vinoxCreateQuadBuffer(&vinGLState.quadBuffer);
@@ -157,20 +148,10 @@ int vinoxInit(int width, int height) {
     glActiveTexture(GL_TEXTURE0);   
     glBindTexture(GL_TEXTURE_2D, 0);
     
-    glUseProgram(vinGLState.screenProgram.shaderID);
-    vinGLState.frameBuffer.texture.width = width;
-    vinGLState.frameBuffer.texture.height = height;
-    vinGLState.frameBuffer.scaleType = GL_LINEAR;
-    vinoxCreateFramebuffer(&vinGLState.frameBuffer);
-
     /* Set up a default camera */
     defaultMatrix = MatrixOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
     vinGLState.matrix = defaultMatrix;
     
-    /* Set the screen texture to our framebuffer texture in shader */
-    loc = glGetUniformLocation(vinGLState.screenProgram.shaderID, "screenTexture");
-    glUniform1i(loc, vinGLState.frameBuffer.texture.id);
-    printf("Framebuffer Texture ID: %i\n", vinGLState.frameBuffer.texture.id);
     
     /* Assign texture ids to the array inside of the shader program */
     glUseProgram(vinGLState.program.shaderID);
@@ -198,17 +179,11 @@ void vinoxBeginDrawing(int width, int height) {
         glBindTexture(GL_TEXTURE_2D, i);
     }
 
-    /* Switch over to drawing to our framebuffer */
-    glBindFramebuffer(GL_FRAMEBUFFER, vinGLState.frameBuffer.fbo);
-    vinGLState.frameBuffer.texture.width = width;
-    vinGLState.frameBuffer.texture.height = height;
-    vinoxResizeFramebuffer(&vinGLState.frameBuffer);
-    
     /* Now just stuff to get ready for rendering and our matrix to be able to
      * provide a camera */
     glViewport(0, 0, width, height);
     glUseProgram(vinGLState.program.shaderID);
-    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     /* Set the default matrix if begin camera is called after this it will
      * overide it */
     defaultMatrix = MatrixOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
@@ -223,14 +198,6 @@ void vinoxEndDrawing() {
     /* Make sure we finish drawing the current batch */
     drawBatchQuads();
     
-    /* Switch back to drawing to the context */
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-    /* Draw our framebuffer texture to the screen */
-    glUseProgram(vinGLState.screenProgram.shaderID);
-    glBindVertexArrayOES(vinGLState.frameBuffer.vao);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-
     /* Reset counters to 0 */
     indexCount = 0;
     quadCount = 0;

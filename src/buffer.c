@@ -97,33 +97,6 @@ int vinoxResizeFramebuffer(FrameBuffer *frameBuffer) {
 
 int vinoxCreateFramebuffer(FrameBuffer *frameBuffer) {
 
-    /* Framebuffer buffers */
-    float vertices[] = {
-        -1.0f, 1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f,
-        1.0f, -1.0f, 1.0f, 0.0f,
-
-        -1.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, -1.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 1.0f, 1.0f
-    };
-    
-    /* Same story gen buffers this time a static buffer since we don't need to
-     * change the vertices dynamically */
-    glGenVertexArraysOES(1, &frameBuffer->vao);
-    glGenBuffers(1, &frameBuffer->vbo);
-    glBindVertexArrayOES(frameBuffer->vao);
-    glBindBuffer(GL_ARRAY_BUFFER, frameBuffer->vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
-    
-    /* Yet again where to look in the vertices for data left being positions
-     * right being texture coords */
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 
-            (void*)(2 * sizeof(float)));
-
     /* This generates the actual framebuffer itself and binds it to the current
      * one we then generate a texture for the resize function to edit */
     glGenFramebuffers(1, &frameBuffer->fbo);

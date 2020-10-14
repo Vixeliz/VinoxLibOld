@@ -8,17 +8,6 @@
 #include "shader.h"
 
 static int compileVertexShader(ShaderProgram *program) {
-    const char *screenVSrc =
-        "#version 320 es\n"
-        "precision mediump float;\n"
-        "layout (location = 0) in vec2 aPos;\n"
-        "layout (location = 1) in vec2 aTexCoords;\n"
-        "out vec2 TexCoords;\n"
-        "void main()\n"
-        "{\n"
-        "   TexCoords = aTexCoords;\n"
-        "   gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);\n"
-        "}\n";
     
     const char* vertexSource =                                                    
         "#version 320 es\n"
@@ -38,37 +27,16 @@ static int compileVertexShader(ShaderProgram *program) {
         "   vTexIndex = aTexIndex;\n"
         "   gl_Position = projection * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
         "}\n\0";
-    
-    /* Based off of what type of program we wanted assign one of the two default
-     * shaders */
-    const char* currentSource;
-    if (program->type == 1) {
-        currentSource = screenVSrc;
-    } else {
-        currentSource = vertexSource;
-    }
 
     /* Compile the shader */
     program->vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(program->vertexShader, 1, &currentSource, NULL);
+    glShaderSource(program->vertexShader, 1, &vertexSource, NULL);
     glCompileShader(program->vertexShader);
     
     return 0;
 }
 
 static int compileFragmentShader(ShaderProgram *program) {
-
-    const char *screenFSrc =
-        "#version 320 es\n"
-        "precision mediump float;\n"
-        "layout (location = 0) out vec4 FragColor;\n"
-        "in vec2 TexCoords;\n"
-        "uniform sampler2D screenTexture;\n"
-        "void main()\n"
-        "{\n"
-        "   vec3 col = texture(screenTexture, TexCoords).rgb;\n"
-        "   FragColor = vec4(col, 1.0);\n"
-        "}\n";
 
     const char* fragmentSource = 
         "#version 320 es\n"
@@ -88,18 +56,9 @@ static int compileFragmentShader(ShaderProgram *program) {
         "   }\n"
         "}\n\0";
     
-    /* Based off of what type of program we wanted assign one of the two default
-     * shaders */
-    const char* currentSource;
-    if (program->type == 1) {
-        currentSource = screenFSrc;
-    } else {
-        currentSource = fragmentSource;
-    }
-
     /* Compile the shader */
     program->fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(program->fragmentShader, 1, &currentSource, NULL);
+    glShaderSource(program->fragmentShader, 1, &fragmentSource, NULL);
     glCompileShader(program->fragmentShader);
 
     return 0;

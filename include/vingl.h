@@ -2,20 +2,13 @@
 #define VINGL_H
 
 #include "raymath.h"
+#include "buffer.h"
 #include "camera.h"
-#include "texture.h"
 
 typedef struct {
     Vector2 position;
     Vector2 size;
 } Quad;
-
-typedef struct {
-    Vector3 position;
-    Vector4 color;
-    Vector2 texCoords;
-    float texIndex;
-} Vertex;
 
 int vinoxInit(int width, int height);
 int vinoxBeginCamera(Camera *camera);
