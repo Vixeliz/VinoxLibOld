@@ -37,12 +37,14 @@ static PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
 static vinState vinGLState = {0};
 static Matrix defaultMatrix;
 static Vertex* quadBuffer = vinGLState.quadBuffer.vertices;
+static uint32_t curTextures[8] = { 0 };
 /*static Vertex* pointBuffer = vinGLState.pointBuffer.vertices;*/
 
 /* Counters */
 static uint32_t indexCount = 0;
 static uint32_t quadCount = 0;
 static uint32_t drawCalls = 0;
+static uint32_t textureCount = 1;
 
 /* Clears color so we can do this for render textures as well */
 int vinoxClear(Vector4 color) {
@@ -54,9 +56,9 @@ int vinoxClear(Vector4 color) {
 static Matrix lastMatrix;
 /* Begin a framebuffer and bind the current framebuffer to that one */
 int vinoxBeginTexture(FrameBuffer *frameBuffer) {
-    for (int i = 1; i <= 8; i++) {
-        glActiveTexture(GL_TEXTURE0 + i);   
-        glBindTexture(GL_TEXTURE_2D, i);
+    for (uint32_t i = 0; i < textureCount; i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, curTextures[i]);
     }
 
     glBindVertexArrayOES(vinGLState.quadBuffer.vao);
@@ -105,12 +107,18 @@ static int drawBatchQuads() {
     
     /* Bind our new vertex buffer to the vbo and send it to the gpu, then
      * attach Vertex array and draw */
-    glActiveTexture(GL_TEXTURE0);
+    for (uint32_t i = 0; i < textureCount; i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, curTextures[i]);
+        /*printf("Texture pair: %i, %i\n", i, curTextures[i]);*/
+    }
+
     glBindBuffer(GL_ARRAY_BUFFER, vinGLState.quadBuffer.vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vinGLState.quadBuffer.vertices[0]);
         
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
     memset(&vinGLState.quadBuffer.vertices, 0, sizeof(vinGLState.quadBuffer.vertices));
+    textureCount = 1;
 
     return 0;
 }
@@ -153,6 +161,7 @@ int vinoxInit(int width, int height) {
     defaultMatrix = MatrixOrtho(0.0f, width, height, 0.0f, -1.0f, 1.0f);
     vinGLState.matrix = defaultMatrix;
     
+    curTextures[0] = 0;
     
     /* Assign texture ids to the array inside of the shader program */
     glUseProgram(vinGLState.program.shaderID);
@@ -173,12 +182,8 @@ void vinoxBeginDrawing(int width, int height) {
     quadBuffer = vinGLState.quadBuffer.vertices;
     vinGLState.width = width;
     vinGLState.height = height;
-    
-    /*Bind all the textures*/
-    for (int i = 1; i <= 8; i++) {
-        glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, i);
-    }
+
+    textureCount = 1;
 
     /* Now just stuff to get ready for rendering and our matrix to be able to
      * provide a camera */
@@ -218,14 +223,36 @@ int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector4 color,
         /* Detect how many drawcalls are needed for vertex count */
         drawCalls = quadCount/(MAXQUADCOUNT);
         
+        /* This checks to see how many textures are needed and if it is more
+         * then the max available start a new drawcall and reset */
+        float textureIndex = 0.0f;
+        if (textureID != 0) {
+            for (uint32_t i = 1; i < textureCount; i++) {
+                if (curTextures[i] == textureID) {
+                    textureIndex = (float)i;
+                    break;
+                }
+            }
+
+            if (textureIndex == 0.0f) {
+                if (textureCount >= 8)
+                    drawBatchQuads();
+                
+                textureIndex = (float)textureCount;
+                curTextures[textureCount] = textureID;
+                textureCount++;
+            }
+        }
+
         /* Detect if adding any more vertices will cause a new batch to be made
          * if so drawThe current batch and reset buffer */
         if ((int)((quadCount + 1)/(MAXQUADCOUNT)) > (int)drawCalls) {
             drawBatchQuads();
             quadBuffer = vinGLState.quadBuffer.vertices;
         }
+        
         /* Assiging vertex data to our vertices array */
-        quadBuffer = createQuad(quadBuffer, quad, textureMask, textureID, color, rotation);
+        quadBuffer = createQuad(quadBuffer, quad, textureMask, textureIndex, color, rotation);
         indexCount += 6;
 
     return 0;
