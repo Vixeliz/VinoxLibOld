@@ -110,7 +110,6 @@ static int drawBatchQuads() {
     for (uint32_t i = 0; i < textureCount; i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, curTextures[i]);
-        /*printf("Texture pair: %i, %i\n", i, curTextures[i]);*/
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, vinGLState.quadBuffer.vbo);
