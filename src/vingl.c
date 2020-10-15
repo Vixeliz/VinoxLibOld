@@ -43,6 +43,8 @@ static Vertex* quadBuffer = vinGLState.quadBuffer.vertices;
 static uint32_t indexCount = 0;
 static uint32_t quadCount = 0;
 static uint32_t drawCalls = 0;
+static uint32_t currentTex = 1;
+static uint32_t curTextures[8] = { 0 };
 
 /* Clears color so we can do this for render textures as well */
 int vinoxClear(Vector4 color) {
@@ -105,6 +107,10 @@ static int drawBatchQuads() {
     
     /* Bind our new vertex buffer to the vbo and send it to the gpu, then
      * attach Vertex array and draw */
+    for (uint32_t i = 0; i < 8; i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, curTextures[i]);
+    }
     glActiveTexture(GL_TEXTURE0);
     glBindBuffer(GL_ARRAY_BUFFER, vinGLState.quadBuffer.vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vinGLState.quadBuffer.vertices[0]);
@@ -161,6 +167,8 @@ int vinoxInit(int width, int height) {
     int textures[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
     glUniform1iv(loc2, 8, textures);
 
+    curTextures[0] = 0;
+
     return 0;
 }
 
@@ -175,10 +183,11 @@ void vinoxBeginDrawing(int width, int height) {
     vinGLState.height = height;
     
     /*Bind all the textures*/
-    for (int i = 1; i <= 8; i++) {
-        glActiveTexture(GL_TEXTURE0 + i);   
-        glBindTexture(GL_TEXTURE_2D, i);
-    }
+    currentTex = 1;
+    /*for (int i = 1; i <= 8; i++) {*/
+        /*glActiveTexture(GL_TEXTURE0 + i);   */
+        /*glBindTexture(GL_TEXTURE_2D, i);*/
+    /*}*/
 
     /* Now just stuff to get ready for rendering and our matrix to be able to
      * provide a camera */
@@ -218,6 +227,26 @@ int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector4 color,
         /* Detect how many drawcalls are needed for vertex count */
         drawCalls = quadCount/(MAXQUADCOUNT);
         
+        if (textureID != 0) {
+        float textureIndex = 0.0f;
+        bool hasDone = false;
+        for (uint32_t i = 1; i <= 8; i++) {
+            if (curTextures[i] == (int)textureID) {
+                textureIndex = textureID;
+                hasDone = true;
+            }
+        }
+
+        if (hasDone == false) {
+            if (currentTex >= 8)
+                drawBatchQuads();
+
+            textureIndex = currentTex;
+            curTextures[currentTex] = textureID;
+            currentTex++;
+
+        }
+        }
         /* Detect if adding any more vertices will cause a new batch to be made
          * if so drawThe current batch and reset buffer */
         if ((int)((quadCount + 1)/(MAXQUADCOUNT)) > (int)drawCalls) {
