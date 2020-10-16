@@ -85,6 +85,7 @@ int vinoxEndTexture(FrameBuffer *frameBuffer) {
 
 /* Begins using a user camera by changing the states camera */
 int vinoxBeginCamera(Camera *camera) {
+    drawBatchQuads();
     Matrix viewprojection = vinoxCameraMatrix(camera, vinGLState.matrix);
     vinGLState.matrix = viewprojection;
     glUniformMatrix4fv(glGetUniformLocation(vinGLState.program.shaderID, "projection"), 1, false, &MatrixToFloat(vinGLState.matrix)[0]);
