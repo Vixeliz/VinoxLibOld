@@ -5,6 +5,8 @@
 #include "buffer.h"
 #include "camera.h"
 
+#define EMPTYQUAD (Quad) { { 0.0f, 0.0f }, { 0.0f, 0.0f } }
+
 typedef struct {
     Vector2 position;
     Vector2 size;

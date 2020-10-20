@@ -222,7 +222,7 @@ int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector4 color,
         
         /* Detect how many drawcalls are needed for vertex count */
         drawCalls = quadCount/(MAXQUADCOUNT);
-        
+
         /* This checks to see how many textures are needed and if it is more
          * then the max available start a new drawcall and reset */
         float textureIndex = 0.0f;
@@ -270,15 +270,16 @@ Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, float textureID,
     (Vector2) { 0.5f, 0.5f },
     (Vector2) { -0.5f, 0.5f }};
 
-    
+
+    Vector2 textureCoords[4];
     /* Temporarily have it use the full texture coords however we can take in a
      * rectangle and change this array acordingly */
-    Vector2 textureCoords[4] = {
-    (Vector2) { 0.0f, 0.0f },
-    (Vector2) { 1.0f, 0.0f },
-    (Vector2) { 1.0f, 1.0f },
-    (Vector2) { 0.0f, 1.0f }};
-
+    if (textureMask.size.y == 0 && textureMask.size.x == 0) {
+    textureCoords[0] = (Vector2) { 0.0f, 0.0f };
+    textureCoords[1] = (Vector2) { 1.0f, 0.0f };
+    textureCoords[2] = (Vector2) { 1.0f, 1.0f };
+    textureCoords[3] = (Vector2) { 0.0f, 1.0f };
+    }
     /* We use matrices to transform the vertices now to make it easier to do so
      * especially rotating */
 

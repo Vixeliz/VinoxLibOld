@@ -8,8 +8,6 @@
 #include "sound.h"
 #include "buffer.h"
 
-#define EMPTYQUAD (Quad) { { 0.0f, 0.0f }, { 0.0f, 0.0f } }
-
 #define BLANK (Vector4) { 0.0f, 0.0f, 0.0f, 0.0f }
 #define WHITE (Vector4) { 1.0f, 1.0f, 1.0f, 1.0f }
 #define BLACK (Vector4) { 0.0f, 0.0f, 0.0f, 1.0f }
