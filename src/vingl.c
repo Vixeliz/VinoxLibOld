@@ -16,7 +16,7 @@
 
 /* Functions for the file */
 static Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask,
-        float textureID, Vector4 color, float rotation);
+        float textureID, Vector2 textureSize, Vector4 color, float rotation);
 static int drawBatchQuads();
 
 /* Global Area */
@@ -218,7 +218,7 @@ int vinoxEnd() {
 
 /* This is called by the user just is basically a wrapper around the createQuad
  * in vingl however has some checking for when to split up a batch */
-int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector4 color, float rotation) {
+int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector2 textureSize, Vector4 color, float rotation) {
         
         /* Detect how many drawcalls are needed for vertex count */
         drawCalls = quadCount/(MAXQUADCOUNT);
@@ -252,7 +252,7 @@ int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector4 color,
         }
         
         /* Assiging vertex data to our vertices array */
-        quadBuffer = createQuad(quadBuffer, quad, textureMask, textureIndex, color, rotation);
+        quadBuffer = createQuad(quadBuffer, quad, textureMask, textureIndex, textureSize, color, rotation);
         indexCount += 6;
 
     return 0;
@@ -261,7 +261,7 @@ int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector4 color,
 /* Function to assign data to each vertex for every quad in the vertices array
  * */
 Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, float textureID,
-        Vector4 color, float rotation) {
+        Vector2 textureSize, Vector4 color, float rotation) {
     
     /* We use this to avoid having 4 seperate sections */
     Vector2 quadVertices[4] = {
@@ -279,6 +279,13 @@ Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, float textureID,
     textureCoords[1] = (Vector2) { 1.0f, 0.0f };
     textureCoords[2] = (Vector2) { 1.0f, 1.0f };
     textureCoords[3] = (Vector2) { 0.0f, 1.0f };
+    } else {
+    float sizeX = 1/textureSize.x;
+    float sizeY = 1/textureSize.y;
+    textureCoords[0] = (Vector2) { sizeX * textureMask.position.x, sizeY * textureMask.position.y };
+    textureCoords[1] = (Vector2) { sizeX * textureMask.position.x + sizeX * textureMask.size.x, sizeY * textureMask.position.y };
+    textureCoords[2] = (Vector2) { sizeX * textureMask.position.x + sizeX * textureMask.size.x, sizeY * textureMask.position.y + sizeY * textureMask.size.y };
+    textureCoords[3] = (Vector2) { sizeX * textureMask.position.x, sizeY * textureMask.position.y + sizeY * textureMask.size.y };
     }
     /* We use matrices to transform the vertices now to make it easier to do so
      * especially rotating */
