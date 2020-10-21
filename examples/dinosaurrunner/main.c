@@ -11,6 +11,8 @@
 #define SCROLLINCREASE 1
 #define GRAVITY 1400
 
+#define EMPTYVEC (Vector2) { 0.0f, 0.0f }
+
 /* Function */
 static int updatePlayer();
 static int isKeyPressed(GLFWwindow *window, int keycode);
@@ -130,10 +132,10 @@ int main(void) {
             vinoxClear((Vector4){ 0.2f, 0.2f, 0.2f, 1.0f });
             vinoxBeginTexture(&renderTexture);
                 vinoxClear((Vector4) { 0.0, 0.0, 0.0, 1.0});
-                    vinoxCreateQuad(floor, EMPTYQUAD, 0, WHITE, 0.0f);
-                    vinoxCreateQuad(dino.quad, EMPTYQUAD, dino.currentTexture, WHITE, 0.0f);
+                    vinoxCreateQuad(floor, EMPTYQUAD, 0, EMPTYVEC, WHITE, 0.0f);
+                    vinoxCreateQuad(dino.quad, EMPTYQUAD, dino.currentTexture, EMPTYVEC, WHITE, 0.0f);
             vinoxEndTexture(&renderTexture);
-            vinoxCreateQuad((Quad) { { width/2, height/2 }, { width, -height } }, EMPTYQUAD, renderTexture.texture.id, WHITE, 0.0f);
+            vinoxCreateQuad((Quad) { { width/2, height/2 }, { width, -height } }, EMPTYQUAD, renderTexture.texture.id, EMPTYVEC, WHITE, 0.0f);
         vinoxEndDrawing();
 
         glfwSwapBuffers(window);

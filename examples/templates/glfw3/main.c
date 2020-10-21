@@ -7,6 +7,7 @@
 /* MACROS */
 #define SCREENWIDTH 640
 #define SCREENHEIGHT 480
+#define EMPTYVEC (Vector2) { 0.0f, 0.0f }
 
 /* Functions */
 int isKeyPressed(GLFWwindow *window, int keycode);
@@ -70,8 +71,8 @@ int main(void) {
         /* Draw */
         vinoxBeginDrawing(windowWidth, windowHeight);
             vinoxClear(WHITE);
-            vinoxCreateQuad((Quad) { { windowWidth/2, windowHeight/2 }, { 50.0f, 50.0f } }, EMPTYQUAD, 0, GREEN, 0.0f);
-            vinoxCreateQuad((Quad) { mousePos, { 25.0f, 25.0f } }, EMPTYQUAD, 0, PURPLE, 0.0f);
+            vinoxCreateQuad((Quad) { { windowWidth/2, windowHeight/2 }, { 50.0f, 50.0f } }, EMPTYQUAD, 0, EMPTYVEC, GREEN, 0.0f);
+            vinoxCreateQuad((Quad) { mousePos, { 25.0f, 25.0f } }, EMPTYQUAD, 0, EMPTYVEC, PURPLE, 0.0f);
         vinoxEndDrawing();
 
         /* Switch buffers and poll events */
