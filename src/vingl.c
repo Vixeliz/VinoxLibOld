@@ -13,6 +13,13 @@
 #include "buffer.h"
 #include "texture.h"
 #include "shader.h"
+#define CUTE_C2_IMPLEMENTATION
+#if defined(_WIN32)
+#define CUTE_C2_API __declspec(dllexport) externline
+#else
+#define CUTE_C2_API extern inline
+#endif
+#include "cute_c2.h"
 
 /* Functions for the file */
 static Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask,

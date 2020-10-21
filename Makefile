@@ -31,12 +31,14 @@ install:
 	mkdir -p $(DESTDIR)$(PREFIX)/include/vinox
 	cp include/* $(DESTDIR)$(PREFIX)/include/vinox
 	cp external/raymath.h $(DESTDIR)$(PREFIX)/include
+	cp external/cute_c2.h $(DESTDIR)$(PREFIX)/include
 
 uninstall:
 	rm -rf $(DESTDIR)$(PREFIX)/lib/libvinox.a
 	rm -rf $(DESTDIR)$(PREFIX)/lib/libvinox.so
 	rm -rf $(DESTDIR)$(PREFIX)/include/vinox
 	rm -rf $(DESTDIR)$(PREFIX)/include/raymath.h
+	rm -rf $(DESTDIR)$(PREFIX)/include/cute_c2.h
 
 clean:
 	$(RM) $(OBJS) libvinox.a libvinox.so

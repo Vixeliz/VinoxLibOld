@@ -17,10 +17,7 @@ Thank you to the following sources for either inspiration or an amazing header t
 * Raylib(inspired by and uses raymath)
 * stb_headers(image loading)
 * miniaudio(audio)
-
-Other Resource
---------------
-* Cute_headers - you can find useful header libs there such as cute_c2
+* cute_c2(collision)
 
 Why GLES2?
 ----------
