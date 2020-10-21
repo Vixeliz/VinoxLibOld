@@ -11,6 +11,14 @@ What are the goals/Ideas?
 * **Minimize** reliance on dynamic memory allocation
 * Be able to use in any GLES2 context.
 
+Thanks
+------
+Thank you to the following sources for either inspiration or an amazing header that is used in this project!
+* Raylib(inspired by and uses raymath)
+* cute_headers(collision detection)
+* stb_headers(image loading)
+* miniaudio(audio)
+
 Why GLES2?
 ----------
 It is portable and specifically for my use case I wanted a library that worked with xorg libs on wayland.
