@@ -15,5 +15,6 @@
 #define GREEN (Vector4) { 0.0f, 1.0f, 0.0f, 1.0f }
 #define BLUE (Vector4) { 0.0f, 0.0f, 1.0f, 1.0f }
 #define PURPLE (Vector4) { 1.0f, 0.0f, 1.0f, 1.0f }
+#define LIGHTBLUE (Vector4) { 0.0f, 0.5f, 0.8f, 1.0f }
 
 #endif
