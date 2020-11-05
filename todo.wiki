@@ -7,8 +7,8 @@ Features:
 * [ ] allow for drawing a part of a texture(this should be easy with texcoords in createQuad)
 * [X] Render stuff to a texture useful for certain things
 * [X] Framebuffer so we can actually do stuff like transparency
-* [o] Performance
-    * [ ] Only render a batch if it has changed
+* [O] Performance
+    * [X] Only render a batch if it has changed
     * [ ] split up position, coords/textureid, and colors into seperate vbos so we only have to update one at a time
     * [X] Good default value for MAXQUADS
     * [X] Batch type to make it easier to organize things

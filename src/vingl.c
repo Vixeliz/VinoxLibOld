@@ -130,8 +130,8 @@ static int drawBatchQuads() {
     return 0;
 }
 
-int vinoxInit(int width, int height) {
-    
+int vinoxInit(int width, int height) {  
+
     /* Load extensions */
     glGenVertexArraysOES = 
     (PFNGLGENVERTEXARRAYSOESPROC)
