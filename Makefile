@@ -1,4 +1,4 @@
-CFLAGS = -Wall -O1 -fPIC
+CFLAGS = -Wall -fPIC -O2
 
 INCLUDES = -Iinclude -Iexternal
 
@@ -18,8 +18,7 @@ all: $(MAIN)
 	@echo LibVinox has successfully compiled
 
 $(MAIN): $(OBJS)
-	$(CC) -fPIC -shared $(OBJS) -o libvinox.so
-	ar -rcs libvinox.a $(OBJS)
+	$(CC) -shared $(OBJS) -o libvinox.so
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
@@ -34,14 +33,13 @@ install:
 	cp external/cute_c2.h $(DESTDIR)$(PREFIX)/include
 
 uninstall:
-	rm -rf $(DESTDIR)$(PREFIX)/lib/libvinox.a
 	rm -rf $(DESTDIR)$(PREFIX)/lib/libvinox.so
 	rm -rf $(DESTDIR)$(PREFIX)/include/vinox
 	rm -rf $(DESTDIR)$(PREFIX)/include/raymath.h
 	rm -rf $(DESTDIR)$(PREFIX)/include/cute_c2.h
 
 clean:
-	$(RM) $(OBJS) libvinox.a libvinox.so
+	$(RM) $(OBJS) libvinox.so
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^
