@@ -30,7 +30,6 @@ static int drawBatchQuads();
 typedef struct {
     Matrix matrix;
     Buffer quadBuffer;
-    Buffer pointBuffer;
     ShaderProgram program;
     int width, height;
 } vinState;
@@ -45,7 +44,6 @@ static vinState vinGLState = {0};
 static Matrix defaultMatrix;
 static Vertex* quadBuffer = vinGLState.quadBuffer.vertices;
 static uint32_t curTextures[8] = { 0 };
-/*static Vertex* pointBuffer = vinGLState.pointBuffer.vertices;*/
 
 /* Counters */
 static uint32_t indexCount = 0;
@@ -63,12 +61,12 @@ int vinoxClear(Vector4 color) {
 static Matrix lastMatrix;
 /* Begin a framebuffer and bind the current framebuffer to that one */
 int vinoxBeginTexture(FrameBuffer *frameBuffer) {
+    
     for (uint32_t i = 0; i < textureCount; i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, curTextures[i]);
     }
 
-    glBindVertexArrayOES(vinGLState.quadBuffer.vao);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->fbo);
     vinoxResizeFramebuffer(frameBuffer);
     
@@ -122,7 +120,7 @@ static int drawBatchQuads() {
 
     glBindBuffer(GL_ARRAY_BUFFER, vinGLState.quadBuffer.vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * MAXVERTEXCOUNT, &vinGLState.quadBuffer.vertices[0]);
-        
+       
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
     memset(&vinGLState.quadBuffer.vertices, 0, sizeof(vinGLState.quadBuffer.vertices));
     textureCount = 1;
@@ -210,7 +208,7 @@ void vinoxEndDrawing() {
     
     /* Make sure we finish drawing the current batch */
     drawBatchQuads();
-    
+
     /* Reset counters to 0 */
     indexCount = 0;
     quadCount = 0;
