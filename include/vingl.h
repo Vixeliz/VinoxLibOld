@@ -6,6 +6,7 @@
 #include "camera.h"
 
 #define EMPTYQUAD (Quad) { { 0.0f, 0.0f }, { 0.0f, 0.0f } }
+#define EMPTYVEC2 (Vector2) { 0.0f, 0.0f }
 
 typedef struct {
     Vector2 position;
@@ -23,6 +24,9 @@ int vinoxEndTexture(FrameBuffer *frameBuffer);
 int vinoxClear(Vector4 color);
 
 unsigned int vinoxCreateTexture(const char* path);
-int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector2 textureSize, Vector4 color, float rotation);
+int vinoxQuad(Quad quad, Vector4 color);
+int vinoxRotatedQuad(Quad quad, Vector4 color, float rotation);
+int vinoxTexturedQuad(Quad quad, float textureID, Vector4 color);
+int vinoxQuadPro(Quad quad, Quad textureMask, Vector2 textureSize, float textureID, Vector4 color, float rotation);
 
 #endif

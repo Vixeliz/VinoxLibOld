@@ -23,7 +23,7 @@
 
 /* Functions for the file */
 static Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask,
-        float textureID, Vector2 textureSize, Vector4 color, float rotation);
+        Vector2 textureSize, float textureID, Vector4 color, float rotation);
 static int drawBatchQuads();
 
 /* Global Area */
@@ -222,10 +222,88 @@ int vinoxEnd() {
 }
 
 /* Shapes */
+int vinoxQuad(Quad quad, Vector4 color) {
+ 
+    /* Detect how many drawcalls are needed for vertex count */
+        drawCalls = quadCount/(MAXQUADCOUNT);
+
+        /* Detect if adding any more vertices will cause a new batch to be made
+         * if so drawThe current batch and reset buffer */
+        if ((int)((quadCount + 1)/(MAXQUADCOUNT)) > (int)drawCalls) {
+            drawBatchQuads();
+            quadBuffer = vinGLState.quadBuffer.vertices;
+        }
+        
+        /* Assiging vertex data to our vertices array */
+        quadBuffer = createQuad(quadBuffer, quad, EMPTYQUAD, EMPTYVEC2, 0.0f, color, 0.0f);
+        indexCount += 6;
+
+    return 0;
+
+}
+
+int vinoxRotatedQuad(Quad quad, Vector4 color, float rotation) {
+ 
+    /* Detect how many drawcalls are needed for vertex count */
+        drawCalls = quadCount/(MAXQUADCOUNT);
+
+        /* Detect if adding any more vertices will cause a new batch to be made
+         * if so drawThe current batch and reset buffer */
+        if ((int)((quadCount + 1)/(MAXQUADCOUNT)) > (int)drawCalls) {
+            drawBatchQuads();
+            quadBuffer = vinGLState.quadBuffer.vertices;
+        }
+        
+        /* Assiging vertex data to our vertices array */
+        quadBuffer = createQuad(quadBuffer, quad, EMPTYQUAD, EMPTYVEC2, 0.0f, color, rotation);
+        indexCount += 6;
+
+    return 0;
+
+}
+
+int vinoxTexturedQuad(Quad quad, float textureID, Vector4 color) {
+        
+        /* Detect how many drawcalls are needed for vertex count */
+        drawCalls = quadCount/(MAXQUADCOUNT);
+
+        /* This checks to see how many textures are needed and if it is more
+         * then the max available start a new drawcall and reset */
+        float textureIndex = 0.0f;
+        for (uint32_t i = 1; i < textureCount; i++) {
+            if (curTextures[i] == textureID) {
+                textureIndex = (float)i;
+                break;
+            }
+        }
+
+            if (textureIndex == 0.0f) {
+                if (textureCount >= 8)
+                    drawBatchQuads();
+                
+                textureIndex = (float)textureCount;
+                curTextures[textureCount] = textureID;
+                textureCount++;
+            }
+
+        /* Detect if adding any more vertices will cause a new batch to be made
+         * if so drawThe current batch and reset buffer */
+        if ((int)((quadCount + 1)/(MAXQUADCOUNT)) > (int)drawCalls) {
+            drawBatchQuads();
+            quadBuffer = vinGLState.quadBuffer.vertices;
+        }
+        
+        /* Assiging vertex data to our vertices array */
+        quadBuffer = createQuad(quadBuffer, quad, EMPTYQUAD, EMPTYVEC2, textureIndex, color, 0.0f);
+        indexCount += 6;
+
+    return 0;
+
+}
 
 /* This is called by the user just is basically a wrapper around the createQuad
  * in vingl however has some checking for when to split up a batch */
-int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector2 textureSize, Vector4 color, float rotation) {
+int vinoxQuadPro(Quad quad, Quad textureMask, Vector2 textureSize, float textureID, Vector4 color, float rotation) {
         
         /* Detect how many drawcalls are needed for vertex count */
         drawCalls = quadCount/(MAXQUADCOUNT);
@@ -259,7 +337,7 @@ int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector2 textur
         }
         
         /* Assiging vertex data to our vertices array */
-        quadBuffer = createQuad(quadBuffer, quad, textureMask, textureIndex, textureSize, color, rotation);
+        quadBuffer = createQuad(quadBuffer, quad, textureMask, textureSize, textureIndex, color, rotation);
         indexCount += 6;
 
     return 0;
@@ -267,8 +345,8 @@ int vinoxCreateQuad(Quad quad, Quad textureMask, float textureID, Vector2 textur
 
 /* Function to assign data to each vertex for every quad in the vertices array
  * */
-Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, float textureID,
-        Vector2 textureSize, Vector4 color, float rotation) {
+Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, Vector2 textureSize,
+        float textureID, Vector4 color, float rotation) {
     
     /* We use this to avoid having 4 seperate sections */
     Vector2 quadVertices[4] = {
@@ -294,15 +372,9 @@ Vertex* createQuad(Vertex* target, Quad quad, Quad textureMask, float textureID,
     textureCoords[2] = (Vector2) { sizeX * textureMask.position.x + sizeX * textureMask.size.x, sizeY * textureMask.position.y + sizeY * textureMask.size.y };
     textureCoords[3] = (Vector2) { sizeX * textureMask.position.x, sizeY * textureMask.position.y + sizeY * textureMask.size.y };
     }
+
     /* We use matrices to transform the vertices now to make it easier to do so
      * especially rotating */
-
-    /* Currently this is the most performance bottlknecked area due to all the
-     * matrix math for now I think it is fine but something to note to look in
-     * for the future */
-    /* One idea could be two do the position and scale our selves like
-     * previously to avoid two multiply calls then only do rotation and use our
-     * Vector2Transform for the speed up*/
     Matrix transform = MatrixIdentity();
     Matrix translate = MatrixTranslate(quad.position.x, quad.position.y, 0.0f);
     transform = MatrixMultiply(translate, transform);
