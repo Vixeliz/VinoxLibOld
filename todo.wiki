@@ -1,30 +1,19 @@
-Features:
-* [ ] Limit fps
-* [ ] Possibly simple collision detection
-* [ ] Function for updating in a fixed time(like units fixedtimeupdate function)?
-* [ ] Audio(miniaudio)
-* [X] Dynamically split up draw calls if the amount of vertices is too large that way we don't segfault
-* [ ] allow for drawing a part of a texture(this should be easy with texcoords in createQuad)
-* [X] Render stuff to a texture useful for certain things
-* [X] Framebuffer so we can actually do stuff like transparency
-* [O] Performance
-    * [X] Only render a batch if it has changed
-    * [ ] split up position, coords/textureid, and colors into seperate vbos so we only have to update one at a time
-    * [X] Good default value for MAXQUADS
-    * [X] Batch type to make it easier to organize things
-    * [X] Instead of over complicating and using an array of arrays just use one array(vertex) detect if it will overfill if so render then clear it
-
-Clean Up:
-* [O] Modularize
-    1) [X] Seperate all opengl code to other files and functions
-    2) [X] Create structures for certain types such as rectangles and camera
-    4) [X] Split up functions more
-    5) [X] More files
-    6) [ ] Shaders in files
-    7) [X] Seperate example from lib(the example should compile seperatly and be able to use a .a file for the library)
-* [X] Documentation
-    1) [X] Have better comments in the code
-    2) [X] Have a structure file for how the code is layed out(although should explain itself)
+Rewrite:
+* [ ] Look into providing a fixed update loop
+* [ ] DrawSprite() a function to draw an animated sprite.
+* [ ] Look into lower level functions in relation to gles2
+* [ ] audio
+* [ ] Draw from topleft corner instead of center?
+* [ ] Clean API
+* [ ] Different Shapes(LINES, TRIANGLES, QUADS, POINTS)
+* [ ] Textures
+* [ ] Cameras
+* [ ] Rotation
+* [ ] Framebuffers
+* [ ] Batching
+* [ ] Custom shaders
+* [ ] Utility functions for applications?
+* [ ] Strip down raymath header?
 
 Notes:
 * To get an estimate on files that may need to be looked at run 'scc --not-match external --not-match examples --by-file -s complexity'
