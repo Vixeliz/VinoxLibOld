@@ -1,7 +1,12 @@
 # Vinox
+
 A simple 2d framework for rendering graphics in a GLESv2 context.
 
 Heavily inspired by [raylib](https://github.com/raysan5/raylib)
+
+Note: If you use glfw on wayland you must call glfwWindowHint(GLFW_ALPHA_BITS,
+0) before creating a window to prevent any transparency showing the window
+behind it.
 
 What are the goals/Ideas?
 --------------------
