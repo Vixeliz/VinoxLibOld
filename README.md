@@ -36,11 +36,9 @@ Dependencies
 
 Plans
 -----
-* Scripting via lua depending on complexity.
 * Golang support
 * Audio
 * Collision
-* Update
 * Having an optional single file header library for window/input related things with glfw
 * More types of shapes
 
@@ -49,8 +47,3 @@ Notes
 The examples are coded very poorly. I plan on going back through and cleaning them up but currently I just want to get features in.
 
 Raymath is slightly modified currently just a Vector2Transform
-
-Current Limitations
---------------------
-* No audio
-* Optimizing changing data to only when it's changed for example camera
