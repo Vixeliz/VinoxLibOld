@@ -1,5 +1,7 @@
 # Vinox
 
+# Very bad code no longer maintained
+
 A simple 2d framework for rendering graphics in a GLESv2 context.
 
 Heavily inspired by [raylib](https://github.com/raysan5/raylib)
